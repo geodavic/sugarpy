@@ -19,4 +19,6 @@ RUN python3 -m spacy download en_core_web_sm
 
 EXPOSE 5000
 
+ENV PORT=5000
+
 CMD ["python3","main.py"]
