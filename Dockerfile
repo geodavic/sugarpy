@@ -17,6 +17,6 @@ RUN python3 -m pip install .
 # download spacy model
 RUN python3 -m spacy download en_core_web_sm
 
-ARG PORT=5000
+EXPOSE 5000
 
 CMD ["python3","main.py"]
