@@ -13,6 +13,7 @@ nltk = "^3.8.1"
 pylcs = "^0.1.1"
 claucy = {git = "https://github.com/mmxgn/spacy-clausie.git"}
 fastapi = "^0.105.0"
+uvicorn = "^0.24.0.post1"
 
 
 [build-system]
