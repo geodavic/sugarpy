@@ -73,6 +73,7 @@ class MorphologyCounter:
         Main counting method.
         """
         s = self.preprocess(s)
+        num_words = len(s.split(" "))
 
         # Build lookup table for string index to token
         token_locator = {}
@@ -115,7 +116,7 @@ class MorphologyCounter:
 
         s_processed = s_processed.strip()
             
-        return s_processed, morpheme_count
+        return s_processed, morpheme_count, num_words
 
     def preprocess(self, s: str) -> str:
         """

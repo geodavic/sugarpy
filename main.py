@@ -2,6 +2,7 @@ from fastapi import FastAPI, Request, Form
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import HTMLResponse
 from fastapi.templating import Jinja2Templates
+from sugarpy.integrations.app import html_mlu_response
 from pydantic import BaseModel
 import uvicorn
 
@@ -20,10 +21,11 @@ async def root(request: Request):
     return templates.TemplateResponse("index.html", {"request":request})
 
 @app.post("/morph")
-async def pong(
+async def morph(
     input_str: str = Form(...)
 ):
-    return HTMLResponse(content=f"<p> {input_str}</p>", status_code=200)
+    resp = html_mlu_response(input_str)
+    return HTMLResponse(content=resp, status_code=200)
 
 if __name__ == "__main__":
     uvicorn.run(app, host="0.0.0.0", port=5000)
