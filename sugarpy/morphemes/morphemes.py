@@ -17,6 +17,7 @@ class WordWithPrefix(BaseModel):
     def join(self):
         return self.prefix + " " + self.base
 
+
 class WordWithSuffix(BaseModel):
     base: str
     suffix: str
@@ -26,7 +27,6 @@ class WordWithSuffix(BaseModel):
 
 
 class MorphologyCounter:
-
     marker_start = "<mark>"
     marker_end = "</mark>"
 
@@ -39,36 +39,41 @@ class MorphologyCounter:
         """
         TODO: document
         """
+
         def decorator(method):
             def wrapper(cls, token):
-                b = method(cls,token) and token.text.lower().endswith(suffix)
+                b = method(cls, token) and token.text.lower().endswith(suffix)
                 split = None
                 if b:
-                    baseword = token.text[:-len(suffix)]
-                    suff = match_case(suffix, token.text[-len(suffix):])
+                    baseword = token.text[: -len(suffix)]
+                    suff = match_case(suffix, token.text[-len(suffix) :])
                     split = WordWithSuffix(base=baseword, suffix=suff)
                 return b, split
+
             return wrapper
+
         return decorator
 
     def startswith(prefix):
         """
         TODO: document
         """
+
         def decorator(method):
             def wrapper(cls, token):
-                b = method(cls,token) and token.text.lower().startswith(prefix)
+                b = method(cls, token) and token.text.lower().startswith(prefix)
                 split = None
                 if b:
-                    baseword = token.text[len(prefix):]
-                    pref = match_case(prefix, token.text[:len(prefix)])
+                    baseword = token.text[len(prefix) :]
+                    pref = match_case(prefix, token.text[: len(prefix)])
                     split = WordWithPrefix(base=baseword, prefix=pref)
                 return b, split
+
             return wrapper
+
         return decorator
 
-
-    def count(self, s: str, debug: bool=False) -> list:
+    def count(self, s: str, debug: bool = False) -> list:
         """
         Main counting method.
         """
@@ -78,9 +83,9 @@ class MorphologyCounter:
         # Build lookup table for string index to token
         token_locator = {}
         for token in self.nlp(s):
-            for i in range(token.idx, token.idx+len(token.text)):
+            for i in range(token.idx, token.idx + len(token.text)):
                 token_locator[i] = token
-     
+
         # Iterate through whitespace words, collecing tokens for each word
         # Count morphemes on each word and space out the word as well.
         s_processed = ""
@@ -91,11 +96,11 @@ class MorphologyCounter:
             lookup = 0
             current_tokens = []
             while str_idx + lookup < len(s) and s[str_idx + lookup] != " ":
-                t = token_locator[str_idx+lookup]
+                t = token_locator[str_idx + lookup]
                 if t not in current_tokens:
                     current_tokens.append(t)
                 lookup += 1
-          
+
             total_score = 0
             s_added = ""
             for token in current_tokens:
@@ -108,14 +113,16 @@ class MorphologyCounter:
             morpheme_count += total_score
 
             if total_score > 1:
-                s_processed += " " + self.marker_start + s_added.strip() + self.marker_end
+                s_processed += (
+                    " " + self.marker_start + s_added.strip() + self.marker_end
+                )
             else:
                 s_processed += s_added
-                 
+
             str_idx += lookup + 1
 
         s_processed = s_processed.strip()
-            
+
         return s_processed, morpheme_count, num_words
 
     def preprocess(self, s: str) -> str:
@@ -124,8 +131,8 @@ class MorphologyCounter:
         """
 
         # remove newlines and extra spaces
-        s = s.replace("\n",". ")
-        s = re.sub(r'\s+', ' ', s)
+        s = s.replace("\n", ". ")
+        s = re.sub(r"\s+", " ", s)
 
         # remove hyphens in ritualized reduplications
         words = []
@@ -139,14 +146,14 @@ class MorphologyCounter:
 
         return s
 
-    def count_on_token(self, token: Token, debug: bool=False) -> Tuple[int, str]:
+    def count_on_token(self, token: Token, debug: bool = False) -> Tuple[int, str]:
         """
         Count morphemes present in a single token. Also return the
         token text with spaces inserted between distinct morphemes.
         """
 
         # Tokens that don't independently count as a morpheme
-        skip_tokens = ["'","-","’","."]
+        skip_tokens = ["'", "-", "’", "."]
 
         if token.text in skip_tokens or token.is_punct:
             return 0, token.text
@@ -160,7 +167,7 @@ class MorphologyCounter:
 
         splits = []
         for method, _ in morph_identifying_methods:
-            val,split = getattr(self, method)(token)
+            val, split = getattr(self, method)(token)
             if split is not None:
                 splits.append(split)
 
@@ -181,17 +188,19 @@ class MorphologyCounter:
         if len(splits) == 1:
             return splits[0].join()
         elif len(splits) > 1:
-            suff = [s for s in splits if isinstance(s,WordWithSuffix)]
-            pref = [s for s in splits if isinstance(s,WordWithPrefix)]
+            suff = [s for s in splits if isinstance(s, WordWithSuffix)]
+            pref = [s for s in splits if isinstance(s, WordWithPrefix)]
             if len(suff) != 1 or len(pref) != 1:
-                raise ValueError("Can only join a single WordWithSuffix and a single WordWithPrefix.")
-            
+                raise ValueError(
+                    "Can only join a single WordWithSuffix and a single WordWithPrefix."
+                )
+
             middle = find_LCS(suff[0].base, pref[0].base)
-            return pref[0].prefix + " " + middle + " " +  suff[0].suffix
+            return pref[0].prefix + " " + middle + " " + suff[0].suffix
 
     def is_word(self, word: str) -> bool:
-        return word in self.words 
-    
+        return word in self.words
+
     @endswith("s")
     def _count_plural_noun(self, token: Token) -> int:
         return token.tag_ == "NNS"
@@ -207,7 +216,7 @@ class MorphologyCounter:
     @endswith("ing")
     def _count_present_progressive_verb(self, token: Token) -> int:
         return token.tag_ == "VBG"
-    
+
     def _count_proper_noun(self, token: Token) -> Tuple[int, None]:
         return token.pos_ == "PROPN" and token.text[0].isupper(), None
 
@@ -225,7 +234,7 @@ class MorphologyCounter:
         Not perfect. For example 'many` satisfies all conditions
         but should not get an extra morpheme.
         """
-        return (token.pos_ == "ADJ" or token.pos_ == "ADV")
+        return token.pos_ == "ADJ" or token.pos_ == "ADV"
 
     @endswith("est")
     def _count_endswith_est_sup(self, token: Token) -> int:
@@ -239,13 +248,13 @@ class MorphologyCounter:
     def _count_endswith_sion(self, token: Token) -> int:
         return True
 
-    @endswith("ment") 
+    @endswith("ment")
     def _count_endswith_ment(self, token: Token) -> int:
         """
         Not perfect, for example "parchment" satisfies all conditions
         but should not get an extra morpheme.
         """
-        base_word = re.sub("ment$","",token.text.lower())
+        base_word = re.sub("ment$", "", token.text.lower())
         return len(token.text) >= 6 and self.is_word(base_word)
 
     @endswith("ful")
@@ -261,7 +270,7 @@ class MorphologyCounter:
         Not perfect, for example "garish", "radish" satisfy all conditions
         but should not get an extra morpheme.
         """
-        base_word = re.sub("ish$","",token.text.lower())
+        base_word = re.sub("ish$", "", token.text.lower())
         return len(token.text) >= 6 and self.is_word(base_word)
 
     @startswith("dis")
@@ -270,7 +279,7 @@ class MorphologyCounter:
         Not perfect, for example "disease" satisfies all conditions
         but should not get an extra morpheme.
         """
-        base_word = re.sub("^dis","",token.text.lower())
+        base_word = re.sub("^dis", "", token.text.lower())
         return len(token.text) >= 7 and self.is_word(base_word)
 
     @startswith("re")
@@ -279,10 +288,10 @@ class MorphologyCounter:
         Not perfect, for example "regal" satisfies all conditions
         but should not get an extra morpheme.
         """
-        base_word = re.sub("^re","",token.text.lower())
+        base_word = re.sub("^re", "", token.text.lower())
         return len(token.text) >= 5 and self.is_word(base_word)
 
     @startswith("un")
     def _count_startswith_re(self, token: Token) -> int:
-        base_word = re.sub("^un","",token.text.lower())
+        base_word = re.sub("^un", "", token.text.lower())
         return len(token.text) >= 5 and self.is_word(base_word)

@@ -5,12 +5,15 @@ import re
 import spacy
 import claucy
 
-class SentenceCounter:
 
-    def __init__(self, model_name=None):
-        self.nlp = spacy.load(model_name or SM_MODEL_NAME)
+class SentenceCounter:
+    def __init__(self, model_name=None, nlp=None):
+        if nlp is not None:
+            self.nlp = nlp
+        else:
+            self.nlp = spacy.load(model_name or SM_MODEL_NAME)
         claucy.add_to_pipe(self.nlp)
-    
+
     def is_sentence(self, s: str) -> bool:
         """
         A sentence is defined as an utterance with at least one
@@ -23,8 +26,9 @@ class SentenceCounter:
 
     def preprocess(self, s: str) -> str:
         # remove newlines and extra spaces
-        s = s.replace("\n",". ")
-        s = re.sub(r'\s+', ' ', s)
+        s = s.replace("\n", ". ")
+        s = re.sub(r"\s+", " ", s)
+        s = s.strip()
 
         return s
 
@@ -47,16 +51,17 @@ class SentenceCounter:
         clauses = doc._.clauses
         return max(len(clauses), 1)
 
-    def count(self, s: str) -> Tuple[int,int,int]:
+    def count(self, s: str) -> Tuple[int, int, int]:
         """
         Main counting method. Returns number of sentences,
         number of clauses, and number of words in an utterance.
         """
         s = self.preprocess(s)
 
-        sentences, total_words = self.count_sentences(s)
+        total_words = len(s.split(" "))
+        sentences, words_in_sentences = self.count_sentences(s)
         total_clauses = 0
         for sent in sentences:
             total_clauses += self.count_clauses(sent.text)
 
-        return len(sentences), total_clauses, total_words
+        return len(sentences), total_clauses, total_words, words_in_sentences

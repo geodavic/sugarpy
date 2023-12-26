@@ -9,20 +9,61 @@
     <link rel="stylesheet", href="static/styles.css">
     <link href='https://fonts.googleapis.com/css?family=Mountains of Christmas' rel='stylesheet'>
 </head>
-<body>
+<body style="font-family:'Courier New';">
 
 <center>
 <div style="width: 800px">
-<h1 style="font-family:'Courier New'; font-size: 80px"> Lexical Metrics for the SLP </h1>
+<h1 style="font-size: 80px; font-family:'Courier New'"> Lexical Metrics for the SLP </h1>
 <p align="right" style="font-family:'Courier New';color:red; font-size: 15px;"> beta v0.1 </p>
 
 <form method="post" action="/morph" target="output">
-<textarea style="font-size: 16pt" name="input_str" placeholder="Paste utterances here" rows=10, cols=70>
+<textarea style="font-size: 16pt; font-family:'Helvetica Neue'" name="input_str" placeholder="Paste utterances here" rows=10, cols=70>
 </textarea>
-<br><br>
-<button type="submit" class="btn btn-success" style="font-size: 20px;">
-Calculate MLU 🤖
+
+<div class="form-row" style='margin:auto'>
+    <div id="precision-group" class="form-group col-md-2">
+        <label for="age_y" style='font-size: 16pt'> years </label>
+        <select name="age_y" id="age_y">
+             <option value="3">3</option>
+             <option value="4">4</option>
+             <option value="5">5</option>
+             <option value="6">6</option>
+             <option value="7">7</option>
+             <option value="8">8</option>
+             <option value="9">9</option>
+             <option value="10">10</option>
+        </select>
+    </div>
+    <div id="precision-group" class="form-group col-md-2">
+        <label for="age_m" style='font-size: 16pt'> months </label>
+        <select name="age_m" id="age_m">
+             <option value="0">0</option>
+             <option value="1">1</option>
+             <option value="2">2</option>
+             <option value="3">3</option>
+             <option value="4">4</option>
+             <option value="5">5</option>
+             <option value="6">6</option>
+             <option value="7">7</option>
+             <option value="8">8</option>
+             <option value="9">9</option>
+             <option value="10">10</option>
+             <option value="11">11</option>
+        </select>
+
+    </div>
+</div>
+
+
+<div class="form-row" style="clear:both; padding-top: 30px">
+<button type="submit" class="btn btn-primary" formaction="/morph" style="font-family:'Helvetica Neue'; font-size: 20px;">
+Calculate MLU 
 </button>
+<button type="submit" class="btn btn-primary" formaction="/metrics" style="font-family:'Helvetica Neue'; font-size: 20px;">
+Calculate Metrics
+</button>
+
+</div>
 </form>
 
 
