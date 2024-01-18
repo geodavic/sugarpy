@@ -1,6 +1,7 @@
 from sugarpy import MorphologyCounter
 from sugarpy import SentenceCounter
 from sugarpy.norms import norms
+from sugarpy.config import DEFAULT_MODEL
 from pydantic import BaseModel
 import json
 
@@ -39,7 +40,7 @@ def get_metrics(input_str: str):
     total_words_in_sentences = 0
 
     lines = []
-    cm = MorphologyCounter()
+    cm = MorphologyCounter(model_name=DEFAULT_MODEL)
     cs = SentenceCounter(nlp=cm.nlp)
 
     for utterance in input_str.split("\n"):
@@ -53,7 +54,7 @@ def get_metrics(input_str: str):
             total_words += num_words
             total_sentences += num_sent
             total_clauses += num_clauses
-
+    
     return SugarMetrics(
         utterances=total_utterances,
         morphemes=total_morphemes,

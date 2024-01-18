@@ -17,10 +17,15 @@ class SentenceCounter:
     def is_sentence(self, s: str) -> bool:
         """
         A sentence is defined as an utterance with at least one
-        verb (auxillary verbs included).
+        verb (auxillary verbs included) and a subject.
+
+        TODO: count imperatives
         """
         verbs = [t.pos_ == "VERB" or t.pos_ == "AUX" for t in self.nlp(s)]
-        if sum(verbs):
+
+        subj_types = ["nsubj", "csubj", "nsubjpass", "csubjpass"]
+        subjs = [t.dep_ in subj_types for t in self.nlp(s)]
+        if sum(verbs) and sum(subjs):
             return True
         return False
 
@@ -28,6 +33,7 @@ class SentenceCounter:
         # remove newlines and extra spaces
         s = s.replace("\n", ". ")
         s = re.sub(r"\s+", " ", s)
+        s = s.replace("’","'")
         s = s.strip()
 
         return s

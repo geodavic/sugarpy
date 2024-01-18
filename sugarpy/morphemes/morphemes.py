@@ -1,5 +1,6 @@
 from sugarpy.config import SM_MODEL_NAME
 from sugarpy.morphemes.utils import match_case, find_LCS
+from sugarpy.morphemes.rules import morpheme_rules
 from spacy.tokens.token import Token
 from nltk.corpus import words
 from typing import Tuple, List, Union
@@ -86,7 +87,7 @@ class MorphologyCounter:
             for i in range(token.idx, token.idx + len(token.text)):
                 token_locator[i] = token
 
-        # Iterate through whitespace words, collecing tokens for each word
+        # Iterate through whitespace words, collecting tokens for each word
         # Count morphemes on each word and space out the word as well.
         s_processed = ""
         morpheme_count = 0
@@ -101,29 +102,47 @@ class MorphologyCounter:
                     current_tokens.append(t)
                 lookup += 1
 
-            total_score = 0
-            s_added = ""
-            for token in current_tokens:
-                count, spaced = self.count_on_token(token)
-                total_score += count
-                if count:
-                    s_added += " "
-                s_added += spaced
-
-            morpheme_count += total_score
-
-            if total_score > 1:
-                s_processed += (
-                    " " + self.marker_start + s_added.strip() + self.marker_end
-                )
+            full_word = s[str_idx:str_idx+lookup]
+            if full_word.strip() in morpheme_rules:
+                # Handle execeptional/manual cases
+                processed_word = " " + morpheme_rules[full_word].processed
+                morphemes_in_word = morpheme_rules[full_word].score
             else:
-                s_processed += s_added
+                processed_word, morphemes_in_word = self.count_tokens(current_tokens)
+
+            s_processed += processed_word
+            morpheme_count += morphemes_in_word
 
             str_idx += lookup + 1
 
         s_processed = s_processed.strip()
 
         return s_processed, morpheme_count, num_words
+
+    def count_tokens(self, tokens: List[Token]) -> Tuple[str,int]:
+        """
+        Get the processed string and morpheme count from a list of tokens
+        associated to the same whitespace delimited word.
+        """
+
+        total_score = 0
+        s_added = ""
+        for token in tokens:
+            count, spaced = self.count_on_token(token)
+            total_score += count
+            if count:
+                s_added += " "
+            s_added += spaced
+
+        if total_score > 1:
+            s_processed = (
+                " " + self.marker_start + s_added.strip() + self.marker_end
+            )
+        else:
+            s_processed = s_added
+
+        return s_processed,total_score
+
 
     def preprocess(self, s: str) -> str:
         """
@@ -133,6 +152,7 @@ class MorphologyCounter:
         # remove newlines and extra spaces
         s = s.replace("\n", ". ")
         s = re.sub(r"\s+", " ", s)
+        s = s.replace("’","'")
 
         # remove hyphens in ritualized reduplications
         words = []
@@ -217,8 +237,10 @@ class MorphologyCounter:
     def _count_present_progressive_verb(self, token: Token) -> int:
         return token.tag_ == "VBG"
 
+    """
     def _count_proper_noun(self, token: Token) -> Tuple[int, None]:
         return token.pos_ == "PROPN" and token.text[0].isupper(), None
+    """
 
     @endswith("ed")
     def _count_endswith_ed_adj(self, token: Token) -> int:
@@ -234,7 +256,8 @@ class MorphologyCounter:
         Not perfect. For example 'many` satisfies all conditions
         but should not get an extra morpheme.
         """
-        return token.pos_ == "ADJ" or token.pos_ == "ADV"
+        base_word = re.sub("y$", "", token.text.lower())
+        return (token.pos_ == "ADJ" or token.pos_ == "ADV") and self.is_word(base_word)
 
     @endswith("est")
     def _count_endswith_est_sup(self, token: Token) -> int:
