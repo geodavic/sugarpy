@@ -105,8 +105,8 @@ class MorphologyCounter:
             full_word = s[str_idx:str_idx+lookup]
             if full_word.strip() in morpheme_rules:
                 # Handle execeptional/manual cases
-                processed_word = " " + morpheme_rules[full_word].processed
-                morphemes_in_word = morpheme_rules[full_word].score
+                processed_word = " " + morpheme_rules[full_word.strip()].processed
+                morphemes_in_word = morpheme_rules[full_word.strip()].score
             else:
                 processed_word, morphemes_in_word = self.count_tokens(current_tokens)
 
