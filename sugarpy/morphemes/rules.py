@@ -1,12 +1,10 @@
 from pydantic import BaseModel
 from typing import Dict, Any
 import json
-import copy
 
 def capitalize(s: str):
-    s_copy = copy(s)
-    s_copy[0] = s_copy[0].upper()
-    return s_copy
+    s_cap = s[0].upper() + s[1:]
+    return s_cap
 
 class ManualMorphemeRule(BaseModel):
     processed: str
@@ -20,7 +18,7 @@ class MorphemeRules:
     def from_dict(self, d: Dict[str,Any]):
         rules = {}
         for k,v in d.items():
-            case_sensitive = d.pop("case_sensitive",True)
+            case_sensitive = v.pop("case_sensitive",True)
             rules[k] = ManualMorphemeRule.parse_obj(v)
             if not case_sensitive:
                 v['processed'] = capitalize(v['processed'])
