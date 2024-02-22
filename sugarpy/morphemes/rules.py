@@ -3,7 +3,7 @@ from typing import Dict, Any
 import json
 import copy
 
-class capitalize(s: str):
+def capitalize(s: str):
     s_copy = copy(s)
     s_copy[0] = s_copy[0].upper()
     return s_copy
