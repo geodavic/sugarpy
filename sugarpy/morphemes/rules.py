@@ -60,6 +60,21 @@ exceptions = {
         "processed": "until",
         "score": 1,
         "case_sensitive": False
+    },
+    "has": {
+        "processed": "has",
+        "score": 1,
+        "case_sensitive": False
+    },
+    "probably": {
+        "processed": "probably",
+        "score": 1,
+        "case_sensitive": False
+    },
+    "keeped": { # This can be removed once we decide how non-words should be handled
+        "processed": "keeped",
+        "score": 1,
+        "case_sensitive": False
     }
 }
 
