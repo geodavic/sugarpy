@@ -3,6 +3,7 @@ from sugarpy import SentenceCounter
 from sugarpy.norms import norms
 from sugarpy.config import DEFAULT_MODEL
 from pydantic import BaseModel
+import numpy as np
 import json
 
 
@@ -16,7 +17,10 @@ class SugarMetrics(BaseModel):
 
     @property
     def mlu(self):
-        return self.morphemes / self.utterances
+        if self.utterances:
+            return self.morphemes / self.utterances
+        else:
+            return np.inf
 
     @property
     def tnw(self):
@@ -24,11 +28,17 @@ class SugarMetrics(BaseModel):
 
     @property
     def wps(self):
-        return self.words_in_sentences / self.sentences
+        if self.sentences:
+            return self.words_in_sentences / self.sentences
+        else
+            return np.inf
 
     @property
     def cps(self):
-        return self.clauses / self.sentences
+        if self.sentences:
+            return self.clauses / self.sentences
+        else:
+            return np.inf
 
 
 def get_metrics(input_str: str):
