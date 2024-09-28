@@ -30,7 +30,7 @@ class SugarMetrics(BaseModel):
     def wps(self):
         if self.sentences:
             return self.words_in_sentences / self.sentences
-        else
+        else:
             return np.inf
 
     @property
