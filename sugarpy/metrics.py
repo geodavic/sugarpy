@@ -59,31 +59,36 @@ def get_metrics(input_str: str):
             total_morphemes += num_morph
             lines += [line]
             total_utterances += 1
-            num_sent, num_clauses, num_words, words_in_sentences = cs.count(utterance.strip())
+            num_sent, num_clauses, num_words, words_in_sentences = cs.count(
+                utterance.strip()
+            )
             total_words_in_sentences += words_in_sentences
             total_words += num_words
             total_sentences += num_sent
             total_clauses += num_clauses
-    
-    return SugarMetrics(
-        utterances=total_utterances,
-        morphemes=total_morphemes,
-        words=total_words,
-        sentences=total_sentences,
-        words_in_sentences=total_words_in_sentences,
-        clauses=total_clauses,
-    ), lines
+
+    return (
+        SugarMetrics(
+            utterances=total_utterances,
+            morphemes=total_morphemes,
+            words=total_words,
+            sentences=total_sentences,
+            words_in_sentences=total_words_in_sentences,
+            clauses=total_clauses,
+        ),
+        lines,
+    )
+
 
 def get_norms(age_y: int, age_m: int, metric: str):
     data = norms[metric]
 
-    age = 12*age_y + age_m
+    age = 12 * age_y + age_m
     mean = None
     sd = None
     for d in data:
-        if age >= d['min_age'] and age < d['max_age']:
-            mean = d['mean_score']
-            sd = d['sd']
+        if age >= d["min_age"] and age < d["max_age"]:
+            mean = d["mean_score"]
+            sd = d["sd"]
 
-    return mean,sd
-            
+    return mean, sd

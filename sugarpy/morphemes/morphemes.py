@@ -102,7 +102,7 @@ class MorphologyCounter:
                     current_tokens.append(t)
                 lookup += 1
 
-            full_word = s[str_idx:str_idx+lookup]
+            full_word = s[str_idx : str_idx + lookup]
             if full_word.strip() in morpheme_rules:
                 # Handle execeptional/manual cases
                 processed_word = " " + morpheme_rules[full_word.strip()].processed
@@ -119,7 +119,7 @@ class MorphologyCounter:
 
         return s_processed, morpheme_count, num_words
 
-    def count_tokens(self, tokens: List[Token]) -> Tuple[str,int]:
+    def count_tokens(self, tokens: List[Token]) -> Tuple[str, int]:
         """
         Get the processed string and morpheme count from a list of tokens
         associated to the same whitespace delimited word.
@@ -135,14 +135,11 @@ class MorphologyCounter:
             s_added += spaced
 
         if total_score > 1:
-            s_processed = (
-                " " + self.marker_start + s_added.strip() + self.marker_end
-            )
+            s_processed = " " + self.marker_start + s_added.strip() + self.marker_end
         else:
             s_processed = s_added
 
-        return s_processed,total_score
-
+        return s_processed, total_score
 
     def preprocess(self, s: str) -> str:
         """
@@ -152,7 +149,7 @@ class MorphologyCounter:
         # remove newlines and extra spaces
         s = s.replace("\n", ". ")
         s = re.sub(r"\s+", " ", s)
-        s = s.replace("’","'")
+        s = s.replace("’", "'")
 
         # remove hyphens in ritualized reduplications
         words = []

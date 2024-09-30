@@ -33,7 +33,7 @@ class SentenceCounter:
         # remove newlines and extra spaces
         s = s.replace("\n", ". ")
         s = re.sub(r"\s+", " ", s)
-        s = s.replace("’","'")
+        s = s.replace("’", "'")
         s = s.strip()
 
         return s
