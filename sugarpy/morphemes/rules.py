@@ -55,6 +55,16 @@ exceptions = {
         "score": 1,
         "case_sensitive": False,
     },
+    "shy": {
+        "processed": "shy",
+        "score": 1,
+        "case_sensitive": False,
+    },
+    "doesn't": {
+        "processed": "doesn't",
+        "score": 1,
+        "case_sensitive": False,
+    },
 }
 
 morpheme_rules = MorphemeRules.from_dict(exceptions)
