@@ -7,7 +7,8 @@ import os
 
 
 def html_mlu_response(input_str: str):
-    scores, morph_lines = get_metrics(input_str)
+    scores, lines = get_metrics(input_str)
+    morph_lines = lines.morphemes
     mlu_score = round(scores.mlu, 2)
     # todo: make this a template
     resp = f"""<center><b><p style="font-size:20px">Total utterances: {scores.utterances}, morphemes: {scores.morphemes}, MLU: {mlu_score}</p></b></center><br>"""

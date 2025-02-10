@@ -3,6 +3,7 @@ from sugarpy import SentenceCounter
 from sugarpy.norms import norms
 from sugarpy.config import DEFAULT_MODEL
 from pydantic import BaseModel
+from typing import List
 import numpy as np
 import json
 
@@ -41,6 +42,12 @@ class SugarMetrics(BaseModel):
             return np.inf
 
 
+class ProcessedStrings(BaseModel):
+    morphemes: List[str]
+    sentences: List[str]
+    clauses: List[str]
+
+
 def get_metrics(input_str: str):
     total_morphemes = 0
     total_utterances = 0
@@ -67,6 +74,7 @@ def get_metrics(input_str: str):
             total_sentences += num_sent
             total_clauses += num_clauses
 
+    # TODO: return processed strings for all three
     return (
         SugarMetrics(
             utterances=total_utterances,
@@ -76,19 +84,7 @@ def get_metrics(input_str: str):
             words_in_sentences=total_words_in_sentences,
             clauses=total_clauses,
         ),
-        lines,
+        ProcessedStrings(
+            morphemes=lines, sentences=lines, clauses=lines  # TODO add these
+        ),
     )
-
-
-def get_norms(age_y: int, age_m: int, metric: str):
-    data = norms[metric]
-
-    age = 12 * age_y + age_m
-    mean = None
-    sd = None
-    for d in data:
-        if age >= d["min_age"] and age < d["max_age"]:
-            mean = d["mean_score"]
-            sd = d["sd"]
-
-    return mean, sd

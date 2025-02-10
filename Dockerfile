@@ -21,4 +21,4 @@ EXPOSE 5000
 
 ENV PORT=5000
 
-CMD ["python3","main.py"]
+CMD ["python3","api/main.py"]

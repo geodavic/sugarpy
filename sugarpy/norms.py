@@ -1,3 +1,8 @@
+import numpy as np
+
+SD_WITHIN_NORM = 2
+
+
 norms = {
     "tnw": [
         {"min_age": 36, "max_age": 41, "mean_score": 192.3, "sd": 61.22},
@@ -40,3 +45,28 @@ norms = {
         {"min_age": 108, "max_age": 131, "mean_score": 1.37, "sd": 0.15},
     ],
 }
+
+
+def get_norms(age_y: int, age_m: int, metric: str):
+    data = norms[metric]
+
+    age = 12 * age_y + age_m
+    mean = None
+    sd = None
+    for d in data:
+        if age >= d["min_age"] and age < d["max_age"]:
+            mean = d["mean_score"]
+            sd = d["sd"]
+
+    return mean, sd
+
+
+def is_within_norms(score: float, age_y: int, age_m: int, metric: str):
+    """
+    TODO: handle none mean and sd
+    """
+    mean, sd = get_norms(age_y, age_m, metric)
+    meets_criteria = score > (mean - SD_WITHIN_NORM * sd)
+    if score == np.inf:
+        meets_criteria = None
+    return meets_criteria
