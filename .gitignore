@@ -1,2 +1,3 @@
 *.txt
 **__pycache__/
+web/node_modules/*
