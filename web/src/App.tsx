@@ -5,69 +5,105 @@ const Spinner = () => <div className="animate-spin border-t-2 border-b-2 border-
 
 const LanguageAnalyticsApp = () => {
     const [inputText, setInputText] = useState('');
-    const [loading, setLoading] = useState({ mlu: false, wps: false, cps: false, all: false });
-    const [results, setResults] = useState({ mlu: null, wps: null, cps: null, processedText: '', imageUrl: '' });
+    const [loading, setLoading] = useState(false);
+    const [results, setResults] = useState({
+        mlu: { score: null, processedText: '', imageUrl: '', meetsCriteria: false },
+        wps: { score: null, processedText: '', imageUrl: '', meetsCriteria: false },
+        cps: { score: null, processedText: '', imageUrl: '', meetsCriteria: false },
+        tnw: { score: null, processedText: '', imageUrl: '', meetsCriteria: false }
+    });
+    const [activeTab, setActiveTab] = useState('mlu');
+    const [modalImage, setModalImage] = useState('');
+    const [isModalOpen, setIsModalOpen] = useState(false);
 
-    const handleButtonClick = async (metric) => {
-        setLoading((prev) => ({ ...prev, [metric]: true }));
+    const handleButtonClick = async () => {
+        setLoading(true);
         try {
-            const response = await fetch(`http://0.0.0.0:5000/v2/metrics`, { 
+            const response = await fetch(`http://0.0.0.0:5000/v2/metrics`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ sample: inputText, age_y: 4, age_m: 0 })
             });
             const data = await response.json();
-            setResults((prev) => ({ 
-                ...prev, 
-                [metric]: data[metric].score, 
-                processedText: data[metric].processed_text, 
-                imageUrl: data[metric].img
-            }));
+            setResults({
+                mlu: { score: data.mlu.score, processedText: data.mlu.processed_text, imageUrl: data.mlu.img, meetsCriteria: data.mlu.meets_criteria },
+                wps: { score: data.wps.score, processedText: data.wps.processed_text, imageUrl: data.wps.img, meetsCriteria: data.wps.meets_criteria },
+                cps: { score: data.cps.score, processedText: data.cps.processed_text, imageUrl: data.cps.img, meetsCriteria: data.cps.meets_criteria },
+                tnw: { score: data.tnw.score, processedText: data.tnw.processed_text, imageUrl: data.tnw.img, meetsCriteria: data.tnw.meets_criteria }
+            });
         } catch (error) {
             console.error("Error fetching data:", error);
         } finally {
-            setLoading((prev) => ({ ...prev, [metric]: false }));
+            setLoading(false);
         }
+    };
+
+    const openModal = (imageUrl) => {
+        setModalImage(imageUrl);
+        setIsModalOpen(true);
+    };
+
+    const closeModal = () => {
+        setModalImage('');
+        setIsModalOpen(false);
     };
 
     return (
         <div className="flex flex-col items-center p-6">
             <div className="w-full max-w-2xl mb-4">
-                <textarea 
-                    className="w-full h-40 p-4 border border-gray-300 rounded-md"
+                <textarea
+                    className="w-full h-60 p-4 border border-gray-300 rounded-md"
                     placeholder="Paste your sample here..."
                     value={inputText}
                     onChange={(e) => setInputText(e.target.value)}
                 />
-                <div className="flex justify-between mt-4 space-x-4">
-                    {['mlu', 'wps', 'cps', 'all'].map((metric) => (
-                        <button 
-                            key={metric}
-                            onClick={() => handleButtonClick(metric)}
-                            disabled={loading[metric]}
-                        >
-                            {loading[metric] ? <Spinner /> : `Calculate ${metric.toUpperCase()}`}
-                        </button>
-                    ))}
+                <div className="flex justify-center mt-4">
+                    <button
+                        onClick={handleButtonClick}
+                        disabled={loading}
+                        className="flex items-center"
+                    >
+                        {loading ? <Spinner /> : 'Calculate All Analytics'}
+                    </button>
                 </div>
             </div>
-            <div className="w-full max-w-2xl flex">
-                <div className="flex-grow">
-                    {results.mlu !== null || results.wps !== null || results.cps !== null ? (
-                        <div className="mb-4">
-                            {results.mlu !== null && <p>MLU Score: {results.mlu}</p>}
-                            {results.wps !== null && <p>WPS Score: {results.wps}</p>}
-                            {results.cps !== null && <p>CPS Score: {results.cps}</p>}
-                        </div>
-                    ) : null}
-                    <p>{results.processedText}</p>
-                </div>
-                {results.imageUrl && (
-                    <div className="w-40">
-                        <img src={results.imageUrl} alt="Result Illustration" className="rounded-lg" />
+            {Object.values(results).some(result => result.score !== null) ? (
+                <div className="w-full max-w-2xl mt-6">
+                    <div className="flex border-b border-gray-300">
+                        {['mlu', 'wps', 'cps', 'tnw'].map((metric) => (
+                            <button
+                                key={metric}
+                                onClick={() => setActiveTab(metric)}
+                                className={`flex-1 py-2 ${activeTab === metric ? 'border-b-2 border-blue-500' : 'text-gray-500'}`}
+                            >
+                                {metric.toUpperCase()}
+                            </button>
+                        ))}
                     </div>
-                )}
-            </div>
+                    <div className="mt-4">
+                        <div className="flex flex-col items-start space-y-2">
+                            <p>{activeTab.toUpperCase()} Score: {results[activeTab].score}</p>
+                            <p>Meets Criteria: {results[activeTab].meetsCriteria ? 'Yes' : 'No'}</p>
+                            <div dangerouslySetInnerHTML={{ __html: results[activeTab].processedText }} />
+                            {results[activeTab].imageUrl && (
+                                <button onClick={() => openModal(results[activeTab].imageUrl)} className="mt-2 text-blue-500">
+                                    View Image
+                                </button>
+                            )}
+                        </div>
+                    </div>
+                </div>
+            ) : null}
+            {isModalOpen && (
+                <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
+                    <div className="bg-white p-4 rounded-lg">
+                        <button onClick={closeModal} className="absolute top-2 right-2 text-gray-500">
+                            Close
+                        </button>
+                        <img src={modalImage} alt="Metric Illustration" className="rounded-lg" />
+                    </div>
+                </div>
+            )}
         </div>
     );
 };

@@ -11,7 +11,7 @@ def convert_sugar_metrics_to_api_response(
     output = MetricsOutput(
         mlu=MetricItem(
             score=sugar_metrics.mlu,
-            processed_text="\n".join(processed_strings.morphemes),
+            processed_text="<br>".join(processed_strings.morphemes),
             img="https://picsum.photos/200",
             within_guidelines=is_within_norms(
                 sugar_metrics.mlu, metrics_input.age_y, metrics_input.age_m, "mlu"
@@ -19,7 +19,7 @@ def convert_sugar_metrics_to_api_response(
         ),
         wps=MetricItem(
             score=sugar_metrics.wps,
-            processed_text="\n".join(processed_strings.sentences),
+            processed_text="<br>".join(processed_strings.sentences),
             img="https://picsum.photos/200",
             within_guidelines=is_within_norms(
                 sugar_metrics.wps, metrics_input.age_y, metrics_input.age_m, "wps"
@@ -27,7 +27,7 @@ def convert_sugar_metrics_to_api_response(
         ),
         cps=MetricItem(
             score=sugar_metrics.cps,
-            processed_text="\n".join(processed_strings.clauses),
+            processed_text="<br>".join(processed_strings.clauses),
             img="https://picsum.photos/200",
             within_guidelines=is_within_norms(
                 sugar_metrics.cps, metrics_input.age_y, metrics_input.age_m, "cps"
