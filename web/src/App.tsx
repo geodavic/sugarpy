@@ -75,7 +75,7 @@ const LanguageAnalyticsApp = () => {
       {/* Input Section */}
       <div className="w-full max-w-2xl mb-4">
         <textarea
-          className="w-full h-60 p-4 border border-black rounded-md bg-white text-black"
+          className="w-full h-60 p-4 rounded-md bg-white text-black"
           placeholder="Paste your sample here..."
           value={inputText}
           onChange={(e) => setInputText(e.target.value)}
@@ -84,7 +84,7 @@ const LanguageAnalyticsApp = () => {
           <button
             onClick={handleButtonClick}
             disabled={loading}
-            className="flex items-center"
+            className="flex items-center analytics-button white-bg"
           >
             {loading ? <Spinner /> : 'Calculate All Analytics'}
           </button>
@@ -93,7 +93,7 @@ const LanguageAnalyticsApp = () => {
 
       {/* Results Section */}
       {Object.values(results).some(result => result.score !== null) && (
-        <div className="w-full max-w-2xl mt-6 bg-[#42212a] p-4 rounded-md text-white">
+        <div className="w-full max-w-2xl mt-6 bg-[#42212a] p-4 text-white results-container">
           {/* Tab Navigation */}
           <nav role="tablist" aria-label="Metrics" className="flex w-full mb-4">
             {['mlu', 'wps', 'cps', 'tnw'].map(metric => {
@@ -107,11 +107,7 @@ const LanguageAnalyticsApp = () => {
                   id={`tab-${metric}`}
                   tabIndex={isActive ? 0 : -1}
                   onClick={() => setActiveTab(metric)}
-                  className={`flex-1 aspect-square border border-black flex items-center justify-center rounded-none focus:outline-none 
-                    ${isActive 
-                      ? '!bg-[#50C2B4] !text-white font-bold' 
-                      : '!bg-[#2A9D8F] !text-white'}
-                  `}
+                  className={`tab-button flex-1 aspect-square flex items-center justify-center rounded-none focus:outline-none ${isActive ? 'active' : ''}`}
                 >
                   {metric.toUpperCase()}
                 </button>
@@ -130,7 +126,7 @@ const LanguageAnalyticsApp = () => {
               <p>Meets Criteria: {results[activeTab].meetsCriteria ? 'Yes' : 'No'}</p>
               <div dangerouslySetInnerHTML={{ __html: results[activeTab].processedText }} />
               {results[activeTab].imageUrl && (
-                <button onClick={() => openModal(results[activeTab].imageUrl)} className="mt-2">
+                <button onClick={() => openModal(results[activeTab].imageUrl)} className="mt-2 white-bg">
                   View Image
                 </button>
               )}
@@ -143,7 +139,7 @@ const LanguageAnalyticsApp = () => {
       {isModalOpen && (
         <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
           <div className="bg-white p-4 rounded-lg relative">
-            <button onClick={closeModal} className="absolute top-2 right-2 text-black">
+            <button onClick={closeModal} className="absolute top-2 right-2 text-black white-bg">
               Close
             </button>
             <img src={modalImage} alt="Metric Illustration" className="rounded-lg" />
