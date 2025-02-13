@@ -91,7 +91,7 @@ textarea {
 
 /* Custom styles for tab buttons */
 .tab-button {
-  background-color: #409B90;  /* Darkened turquoise for inactive tabs */
+  background-color: #214239;  
   color: #ffffff;
   border: none;  /* No border on inactive tabs */
   transition: background-color 0.25s;
@@ -99,9 +99,9 @@ textarea {
   border-top-right-radius: 0.5rem;
 }
 
-/* Active tab: slightly lighter turquoise with rounded top corners */
+/* Active tab: slightly lighter with rounded top corners */
 .tab-button.active {
-  background-color: #4FB3AC;
+  background-color: #356B5C;
   font-weight: bold;
   border: none; /* Remove any border */
   border-top-left-radius: 0.5rem;
@@ -110,6 +110,7 @@ textarea {
 
 /* Analytics results container: border around the entire container */
 .results-container {
+  background-color: #6B3544;
   border: 2px solid #6A4952;
   border-radius: 0.375rem; /* Same as Tailwind's rounded-md */
 }
