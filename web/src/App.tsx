@@ -17,6 +17,7 @@ const LanguageAnalyticsApp = () => {
   const [activeTab, setActiveTab] = useState('mlu');
   const [modalImage, setModalImage] = useState('');
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [tabsOpen, setTabsOpen] = useState(false);
 
   const handleButtonClick = async () => {
     setLoading(true);
@@ -70,6 +71,8 @@ const LanguageAnalyticsApp = () => {
     setIsModalOpen(false);
   };
 
+  const hasResults = Object.values(results).some(result => result.score !== null);
+
   return (
     <div className="flex flex-col items-center p-6 min-h-screen">
       {/* Input Section */}
@@ -91,48 +94,88 @@ const LanguageAnalyticsApp = () => {
         </div>
       </div>
 
-      {/* Results Section */}
-      {Object.values(results).some(result => result.score !== null) && (
-        <div className="w-full max-w-2xl mt-6 bg-[#42212a] p-4 text-white results-container">
-          {/* Tab Navigation */}
-          <nav role="tablist" aria-label="Metrics" className="flex w-full mb-4">
-            {['mlu', 'wps', 'cps', 'tnw'].map(metric => {
-              const isActive = activeTab === metric;
-              return (
-                <button
-                  key={metric}
-                  role="tab"
-                  aria-selected={isActive}
-                  aria-controls={`panel-${metric}`}
-                  id={`tab-${metric}`}
-                  tabIndex={isActive ? 0 : -1}
-                  onClick={() => setActiveTab(metric)}
-                  className={`tab-button flex-1 aspect-square flex items-center justify-center rounded-none focus:outline-none ${isActive ? 'active' : ''}`}
-                >
-                  {metric.toUpperCase()}
-                </button>
-              );
-            })}
-          </nav>
-
-          {/* Tab Panel */}
-          <div
-            role="tabpanel"
-            id={`panel-${activeTab}`}
-            aria-labelledby={`tab-${activeTab}`}
-          >
-            <div className="flex flex-col items-start space-y-2">
-              <p>{activeTab.toUpperCase()} Score: {results[activeTab].score}</p>
-              <p>Meets Criteria: {results[activeTab].meetsCriteria ? 'Yes' : 'No'}</p>
-              <div dangerouslySetInnerHTML={{ __html: results[activeTab].processedText }} />
-              {results[activeTab].imageUrl && (
-                <button onClick={() => openModal(results[activeTab].imageUrl)} className="mt-2 white-bg">
-                  View Image
-                </button>
-              )}
-            </div>
+      {hasResults && (
+        <>
+          {/* Summary Table in Its Own Results Container */}
+          <div className="results-container w-full max-w-2xl mt-6 p-4 text-white">
+            <table className="w-full">
+              <thead>
+                <tr>
+                  <th className="border-b-2 border-[#6A4952] p-2 text-center">Metric</th>
+                  <th className="border-b-2 border-[#6A4952] p-2 text-center">Score</th>
+                  <th className="border-b-2 border-[#6A4952] p-2 text-center">Meets Criteria</th>
+                  <th className="border-b-2 border-[#6A4952] p-2 text-center">Image</th>
+                </tr>
+              </thead>
+              <tbody>
+                {['mlu', 'wps', 'cps', 'tnw'].map(metric => {
+                  const result = results[metric];
+                  return (
+                    <tr key={metric}>
+                      <td className="p-2 text-center">{metric.toUpperCase()}</td>
+                      <td className="p-2 text-center">
+                        {result.score !== null ? result.score.toFixed(2) : 'N/A'}
+                      </td>
+                      <td className="p-2 text-center">{result.meetsCriteria ? 'Yes' : 'No'}</td>
+                      <td className="p-2 text-center">
+                        {result.imageUrl && (
+                          <button 
+                            onClick={() => openModal(result.imageUrl)} 
+                            className="white-bg text-sm p-1"
+                          >
+                            View Image
+                          </button>
+                        )}
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
           </div>
-        </div>
+
+          {/* Clickable Div to Toggle Detailed Analysis */}
+          <div 
+            className="results-container w-full max-w-2xl mt-4 p-2 text-white text-center cursor-pointer"
+            onClick={() => setTabsOpen(!tabsOpen)}
+          >
+            {tabsOpen ? 'Hide Detailed Analysis' : 'Show Detailed Analysis'}
+          </div>
+
+          {/* Collapsible Detailed Processed Text with Tabs in Its Own Results Container */}
+          {tabsOpen && (
+            <div className="results-container w-full max-w-2xl mt-6 p-4 text-white">
+              <nav role="tablist" aria-label="Metrics" className="flex w-full mb-4">
+                {['mlu', 'wps', 'cps'].map(metric => {
+                  const isActive = activeTab === metric;
+                  return (
+                    <button
+                      key={metric}
+                      role="tab"
+                      aria-selected={isActive}
+                      aria-controls={`panel-${metric}`}
+                      id={`tab-${metric}`}
+                      tabIndex={isActive ? 0 : -1}
+                      onClick={() => setActiveTab(metric)}
+                      className={`tab-button flex-1 aspect-square flex items-center justify-center rounded-none focus:outline-none ${isActive ? 'active' : ''}`}
+                    >
+                      {metric.toUpperCase()}
+                    </button>
+                  );
+                })}
+              </nav>
+              <div
+                role="tabpanel"
+                id={`panel-${activeTab}`}
+                aria-labelledby={`tab-${activeTab}`}
+              >
+                <div className="flex flex-col items-start space-y-2">
+                  <div dangerouslySetInnerHTML={{ __html: results[activeTab].processedText }} />
+                </div>
+              </div>
+            </div>
+          )}
+        </>
       )}
 
       {/* Modal */}
