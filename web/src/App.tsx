@@ -9,9 +9,9 @@ const LanguageAnalyticsApp = () => {
   const [inputText, setInputText] = useState('');
   const [loading, setLoading] = useState(false);
   const [results, setResults] = useState({
-    mlu: { score: null, processedText: '', imageUrl: '', meetsCriteria: false },
-    wps: { score: null, processedText: '', imageUrl: '', meetsCriteria: false },
-    cps: { score: null, processedText: '', imageUrl: '', meetsCriteria: false },
+    mlu: { score: null, processedText: '', imageUrl: '', meetsCriteria: false, numerator: null, denominator: null },
+    wps: { score: null, processedText: '', imageUrl: '', meetsCriteria: false, numerator: null, denominator: null },
+    cps: { score: null, processedText: '', imageUrl: '', meetsCriteria: false, numerator: null, denominator: null },
     tnw: { score: null, processedText: '', imageUrl: '', meetsCriteria: false }
   });
   const [activeTab, setActiveTab] = useState('mlu');
@@ -33,19 +33,25 @@ const LanguageAnalyticsApp = () => {
           score: data.mlu.score,
           processedText: data.mlu.processed_text,
           imageUrl: data.mlu.img,
-          meetsCriteria: data.mlu.meets_criteria
+          meetsCriteria: data.mlu.meets_criteria,
+          numerator: data.mlu.numerator,
+          denominator: data.mlu.denominator
         },
         wps: {
           score: data.wps.score,
           processedText: data.wps.processed_text,
           imageUrl: data.wps.img,
-          meetsCriteria: data.wps.meets_criteria
+          meetsCriteria: data.wps.meets_criteria,
+          numerator: data.wps.numerator,
+          denominator: data.wps.denominator
         },
         cps: {
           score: data.cps.score,
           processedText: data.cps.processed_text,
           imageUrl: data.cps.img,
-          meetsCriteria: data.cps.meets_criteria
+          meetsCriteria: data.cps.meets_criteria,
+          numerator: data.cps.numerator,
+          denominator: data.cps.denominator
         },
         tnw: {
           score: data.tnw.score,
@@ -73,6 +79,22 @@ const LanguageAnalyticsApp = () => {
 
   const hasResults = Object.values(results).some(result => result.score !== null);
 
+  // Returns the formatted string based on the active metric
+    const getFormattedString = (metric: string) => {
+      const result = results[metric];
+      if (!result) return '';
+      const formattedScore = result.score === null ? 'N/A' : result.score.toFixed(2);
+      if (metric === 'mlu') {
+        return `Total number of morphmes / total utterances = ${result.numerator} / ${result.denominator} = ${formattedScore}`;
+      }
+      if (metric === 'wps') {
+        return `Total number of words / total number of sentences = ${result.numerator} / ${result.denominator} = ${formattedScore}`;
+      }
+      if (metric === 'cps') {
+        return `Total number of clauses / total number of sentences = ${result.numerator} / ${result.denominator} = ${formattedScore}`;
+      }
+      return '';
+    };
   return (
     <div className="flex flex-col items-center p-6 min-h-screen">
       {/* Input Section */}
@@ -89,7 +111,7 @@ const LanguageAnalyticsApp = () => {
             disabled={loading}
             className="flex items-center analytics-button white-bg"
           >
-            {loading ? <Spinner /> : 'Calculate All Analytics'}
+            {loading ? <Spinner /> : 'Calculate Metrics'}
           </button>
         </div>
       </div>
@@ -114,19 +136,23 @@ const LanguageAnalyticsApp = () => {
                     <tr key={metric}>
                       <td className="p-2 text-center">{metric.toUpperCase()}</td>
                       <td className="p-2 text-center">
-                        {result.score !== null ? result.score.toFixed(2) : 'N/A'}
+                        {result.score !== null ? (metric === 'tnw' ? result.score : result.score.toFixed(2)) : 'N/A'}
                       </td>
-                      <td className="p-2 text-center">{result.meetsCriteria ? 'Yes' : 'No'}</td>
                       <td className="p-2 text-center">
-                        {result.imageUrl && (
-                          <button 
-                            onClick={() => openModal(result.imageUrl)} 
-                            className="white-bg text-sm p-1"
-                          >
-                            View Image
-                          </button>
-                        )}
+                        {result.score === null ? 'N/A' : (result.meetsCriteria ? 'Yes' : 'No')}
                       </td>
+                        <td className="p-2 text-center">
+                          {result.score === null || !result.imageUrl ? (
+                            '-'
+                          ) : (
+                            <button
+                              onClick={() => openModal(result.imageUrl)}
+                              className="white-bg text-sm p-1"
+                            >
+                              View Image
+                            </button>
+                          )}
+                        </td>
                     </tr>
                   );
                 })}
@@ -135,11 +161,11 @@ const LanguageAnalyticsApp = () => {
           </div>
 
           {/* Clickable Div to Toggle Detailed Analysis */}
-          <div 
+          <div
             className="results-container w-full max-w-2xl mt-4 p-2 text-white text-center cursor-pointer"
             onClick={() => setTabsOpen(!tabsOpen)}
           >
-            {tabsOpen ? 'Hide Detailed Analysis' : 'Show Detailed Analysis'}
+            {tabsOpen ? 'Hide Details' : 'Show Details'}
           </div>
 
           {/* Collapsible Detailed Processed Text with Tabs in Its Own Results Container */}
@@ -170,7 +196,13 @@ const LanguageAnalyticsApp = () => {
                 aria-labelledby={`tab-${activeTab}`}
               >
                 <div className="flex flex-col items-start space-y-2">
+                  <hr className="w-full my-2 border-[#6A4952]" />
                   <div dangerouslySetInnerHTML={{ __html: results[activeTab].processedText }} />
+                  {/* Horizontal line and bolded formatted string */}
+                  <hr className="w-full my-2 border-[#6A4952]" />
+                  <div className="font-bold">
+                    {getFormattedString(activeTab)}
+                  </div>
                 </div>
               </div>
             </div>
@@ -185,7 +217,7 @@ const LanguageAnalyticsApp = () => {
             <button onClick={closeModal} className="absolute top-2 right-2 text-black white-bg">
               Close
             </button>
-            <img src={modalImage} alt="Metric Illustration" className="rounded-lg" />
+            <img src={modalImage} alt="Comparison to norms" className="rounded-lg" />
           </div>
         </div>
       )}
