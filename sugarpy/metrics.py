@@ -9,6 +9,8 @@ import json
 
 
 class SugarMetrics(BaseModel):
+    sample: str
+    morpheme_split_sample: str
     utterances: int
     morphemes: int
     words: int
@@ -42,49 +44,60 @@ class SugarMetrics(BaseModel):
             return np.inf
 
 
-class ProcessedStrings(BaseModel):
-    morphemes: List[str]
-    sentences: List[str]
-    clauses: List[str]
+def consolidate_metrics(metrics: List[SugarMetrics]):
+    total = SugarMetrics(
+        sample="\n".join(m.sample for m in metrics),
+        morpheme_split_sample="\n".join(m.morpheme_split_sample for m in metrics),
+        utterances=sum([m.utterances for m in metrics]),
+        morphemes=sum([m.morphemes for m in metrics]),
+        words=sum([m.words for m in metrics]),
+        words_in_sentences=sum([m.words_in_sentences for m in metrics]),
+        sentences=sum([m.sentences for m in metrics]),
+        clauses=sum([m.clauses for m in metrics]),
+    )
+    return total
 
 
-def get_metrics(input_str: str):
-    total_morphemes = 0
-    total_utterances = 0
-    total_sentences = 0
-    total_clauses = 0
-    total_words = 0
-    total_words_in_sentences = 0
+def _annotate_line(line: str, number: int, is_sentence: bool, metric: str):
+    if metric == "mlu":
+        return f"({number} morph.) {line}"
+    if metric == "wps":
+        if is_sentence:
+            return f"({number} words) {line}"
+        else:
+            return f"(n.a.s) {line}"
+    if metric == "cps":
+        if is_sentence:
+            multiple = "" if number == 1 else "s"
+            return f"({number} clause{multiple}) {line}"
+        else:
+            return f"(n.a.s) {line}"
 
-    lines = []
+
+def get_metrics(input_str: str, consolidate=True):
     cm = MorphologyCounter(model_name=DEFAULT_MODEL)
     cs = SentenceCounter(nlp=cm.nlp)
+    computed_metrics = []
 
     for utterance in input_str.split("\n"):
         if utterance.strip():
-            line, num_morph, num_words = cm.count(utterance.strip())
-            total_morphemes += num_morph
-            lines += [line]
-            total_utterances += 1
+            morph_line, num_morph, num_words = cm.count(utterance.strip())
             num_sent, num_clauses, num_words, words_in_sentences = cs.count(
                 utterance.strip()
             )
-            total_words_in_sentences += words_in_sentences
-            total_words += num_words
-            total_sentences += num_sent
-            total_clauses += num_clauses
 
-    # TODO: return processed strings for all three
-    return (
-        SugarMetrics(
-            utterances=total_utterances,
-            morphemes=total_morphemes,
-            words=total_words,
-            sentences=total_sentences,
-            words_in_sentences=total_words_in_sentences,
-            clauses=total_clauses,
-        ),
-        ProcessedStrings(
-            morphemes=lines, sentences=lines, clauses=lines  # TODO add these
-        ),
-    )
+            m = SugarMetrics(
+                sample=utterance.strip(),
+                morpheme_split_sample=morph_line,
+                utterances=1,
+                morphemes=num_morph,
+                words=num_words,
+                sentences=num_sent,
+                words_in_sentences=words_in_sentences,
+                clauses=num_clauses,
+            )
+            computed_metrics.append(m)
+
+    if consolidate:
+        return consolidate_metrics(computed_metrics)
+    return computed_metrics

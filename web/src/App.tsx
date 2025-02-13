@@ -7,7 +7,10 @@ const Spinner = () => (
 
 const LanguageAnalyticsApp = () => {
   const [inputText, setInputText] = useState('');
+  const [ageYears, setAgeYears] = useState(4);
+  const [ageMonths, setAgeMonths] = useState(0);
   const [loading, setLoading] = useState(false);
+  const [errorMessage, setErrorMessage] = useState('');
   const [results, setResults] = useState({
     mlu: { score: null, processedText: '', imageUrl: '', meetsCriteria: false, numerator: null, denominator: null },
     wps: { score: null, processedText: '', imageUrl: '', meetsCriteria: false, numerator: null, denominator: null },
@@ -21,19 +24,37 @@ const LanguageAnalyticsApp = () => {
 
   const handleButtonClick = async () => {
     setLoading(true);
+    setErrorMessage(''); // Clear any previous error
     try {
       const response = await fetch(`http://0.0.0.0:5000/v2/metrics`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ sample: inputText, age_y: 4, age_m: 0 })
+        body: JSON.stringify({ sample: inputText, age_y: ageYears, age_m: ageMonths })
       });
+  
+      if (!response.ok) {
+        let detailedError = '';
+        try {
+          const errorData = await response.json();
+          // If errorData.detail exists and is an array, extract each message.
+          if (errorData.detail && Array.isArray(errorData.detail)) {
+            detailedError = errorData.detail.map((err: any) => err.msg).join('\n');
+          } else {
+            detailedError = errorData.detail || errorData.message || JSON.stringify(errorData);
+          }
+        } catch (jsonErr) {
+          detailedError = await response.text();
+        }
+        throw new Error(detailedError || response.statusText);
+      }
+  
       const data = await response.json();
       setResults({
         mlu: {
           score: data.mlu.score,
           processedText: data.mlu.processed_text,
           imageUrl: data.mlu.img,
-          meetsCriteria: data.mlu.meets_criteria,
+          meetsCriteria: data.mlu.within_guidelines,
           numerator: data.mlu.numerator,
           denominator: data.mlu.denominator
         },
@@ -41,7 +62,7 @@ const LanguageAnalyticsApp = () => {
           score: data.wps.score,
           processedText: data.wps.processed_text,
           imageUrl: data.wps.img,
-          meetsCriteria: data.wps.meets_criteria,
+          meetsCriteria: data.wps.within_guidelines,
           numerator: data.wps.numerator,
           denominator: data.wps.denominator
         },
@@ -49,7 +70,7 @@ const LanguageAnalyticsApp = () => {
           score: data.cps.score,
           processedText: data.cps.processed_text,
           imageUrl: data.cps.img,
-          meetsCriteria: data.cps.meets_criteria,
+          meetsCriteria: data.cps.within_guidelines,
           numerator: data.cps.numerator,
           denominator: data.cps.denominator
         },
@@ -57,15 +78,17 @@ const LanguageAnalyticsApp = () => {
           score: data.tnw.score,
           processedText: data.tnw.processed_text,
           imageUrl: data.tnw.img,
-          meetsCriteria: data.tnw.meets_criteria
+          meetsCriteria: data.tnw.within_guidelines
         }
       });
-    } catch (error) {
+    } catch (error: any) {
       console.error("Error fetching data:", error);
+      setErrorMessage(`${error.toString()}`);
     } finally {
       setLoading(false);
     }
   };
+  
 
   const openModal = (imageUrl: string) => {
     setModalImage(imageUrl);
@@ -79,22 +102,22 @@ const LanguageAnalyticsApp = () => {
 
   const hasResults = Object.values(results).some(result => result.score !== null);
 
-  // Returns the formatted string based on the active metric
-    const getFormattedString = (metric: string) => {
-      const result = results[metric];
-      if (!result) return '';
-      const formattedScore = result.score === null ? 'N/A' : result.score.toFixed(2);
-      if (metric === 'mlu') {
-        return `Total number of morphmes / total utterances = ${result.numerator} / ${result.denominator} = ${formattedScore}`;
-      }
-      if (metric === 'wps') {
-        return `Total number of words / total number of sentences = ${result.numerator} / ${result.denominator} = ${formattedScore}`;
-      }
-      if (metric === 'cps') {
-        return `Total number of clauses / total number of sentences = ${result.numerator} / ${result.denominator} = ${formattedScore}`;
-      }
-      return '';
-    };
+  const getFormattedString = (metric: string) => {
+    const result = results[metric];
+    if (!result) return '';
+    const formattedScore = result.score === null ? 'N/A' : result.score.toFixed(2);
+    if (metric === 'mlu') {
+      return `Total number of morphmes / total utterances = ${result.numerator} / ${result.denominator} = ${formattedScore}`;
+    }
+    if (metric === 'wps') {
+      return `Total number of words / total number of sentences = ${result.numerator} / ${result.denominator} = ${formattedScore}`;
+    }
+    if (metric === 'cps') {
+      return `Total number of clauses / total number of sentences = ${result.numerator} / ${result.denominator} = ${formattedScore}`;
+    }
+    return '';
+  };
+
   return (
     <div className="flex flex-col items-center p-6 min-h-screen">
       {/* Input Section */}
@@ -105,7 +128,34 @@ const LanguageAnalyticsApp = () => {
           value={inputText}
           onChange={(e) => setInputText(e.target.value)}
         />
-        <div className="flex justify-center mt-4">
+        {/* Dropdowns for Age and Calculate Metrics button */}
+        <div className="flex justify-center items-center mt-4 space-x-4">
+          <div className="flex items-center space-x-1">
+            <label className="text-white" htmlFor="ageYears">Age (years):</label>
+            <select
+              id="ageYears"
+              value={ageYears}
+              onChange={(e) => setAgeYears(Number(e.target.value))}
+              className="p-1 rounded white-bg text-black"
+            >
+              {[...Array(11).keys()].map((num) => (
+                <option key={num} value={num}>{num}</option>
+              ))}
+            </select>
+          </div>
+          <div className="flex items-center space-x-1">
+            <label className="text-white" htmlFor="ageMonths">Age (months):</label>
+            <select
+              id="ageMonths"
+              value={ageMonths}
+              onChange={(e) => setAgeMonths(Number(e.target.value))}
+              className="p-1 rounded white-bg text-black"
+            >
+              {[...Array(12).keys()].map((num) => (
+                <option key={num} value={num}>{num}</option>
+              ))}
+            </select>
+          </div>
           <button
             onClick={handleButtonClick}
             disabled={loading}
@@ -114,6 +164,12 @@ const LanguageAnalyticsApp = () => {
             {loading ? <Spinner /> : 'Calculate Metrics'}
           </button>
         </div>
+        {/* Detailed Error Message */}
+        {errorMessage && (
+          <div className="bg-red-500 text-white p-2 rounded mt-4">
+            {errorMessage}
+          </div>
+        )}
       </div>
 
       {hasResults && (
@@ -125,8 +181,8 @@ const LanguageAnalyticsApp = () => {
                 <tr>
                   <th className="border-b-2 border-[#6A4952] p-2 text-center">Metric</th>
                   <th className="border-b-2 border-[#6A4952] p-2 text-center">Score</th>
-                  <th className="border-b-2 border-[#6A4952] p-2 text-center">Meets Criteria</th>
-                  <th className="border-b-2 border-[#6A4952] p-2 text-center">Image</th>
+                  <th className="border-b-2 border-[#6A4952] p-2 text-center">Within Guidelines</th>
+                  <th className="border-b-2 border-[#6A4952] p-2 text-center">Bell Curve</th>
                 </tr>
               </thead>
               <tbody>
@@ -141,18 +197,18 @@ const LanguageAnalyticsApp = () => {
                       <td className="p-2 text-center">
                         {result.score === null ? 'N/A' : (result.meetsCriteria ? 'Yes' : 'No')}
                       </td>
-                        <td className="p-2 text-center">
-                          {result.score === null || !result.imageUrl ? (
-                            '-'
-                          ) : (
-                            <button
-                              onClick={() => openModal(result.imageUrl)}
-                              className="white-bg text-sm p-1"
-                            >
-                              View Image
-                            </button>
-                          )}
-                        </td>
+                      <td className="p-2 text-center">
+                        {result.score === null || !result.imageUrl ? (
+                          '-'
+                        ) : (
+                          <button
+                            onClick={() => openModal(result.imageUrl)}
+                            className="white-bg text-sm p-1"
+                          >
+                            View Image
+                          </button>
+                        )}
+                      </td>
                     </tr>
                   );
                 })}

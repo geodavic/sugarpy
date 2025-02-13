@@ -53,10 +53,8 @@ async def metrics(
 
 @app.post("/v2/metrics")
 async def metrics(metrics_input: MetricsInput) -> MetricsOutput:
-    metrics_result, processed_strings = get_metrics(metrics_input.sample)
-    return convert_sugar_metrics_to_api_response(
-        metrics_result, metrics_input, processed_strings
-    )
+    metrics_result = get_metrics(metrics_input.sample, consolidate=False)
+    return convert_sugar_metrics_to_api_response(metrics_result, metrics_input)
 
 
 if __name__ == "__main__":

@@ -1,7 +1,9 @@
 import numpy as np
+import warnings
 
 SD_WITHIN_NORM = 2
-
+MIN_AGE = 36
+MAX_AGE = 131
 
 norms = {
     "tnw": [
@@ -51,13 +53,19 @@ def get_norms(age_y: int, age_m: int, metric: str):
     data = norms[metric]
 
     age = 12 * age_y + age_m
+    if age < MIN_AGE or age > MAX_AGE:
+        warnings.warn(
+            f"Warning: attempting to get norms when subject is outside of data ranges. Minimum age is {MIN_AGE} months and maximum age is {MAX_AGE}."
+        )
     mean = None
     sd = None
     for d in data:
         if age >= d["min_age"] and age < d["max_age"]:
             mean = d["mean_score"]
             sd = d["sd"]
-
+    if age == MAX_AGE:
+        mean = d["mean_score"]
+        sd = d["sd"]
     return mean, sd
 
 
