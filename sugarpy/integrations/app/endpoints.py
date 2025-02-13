@@ -7,12 +7,13 @@ import os
 
 
 def html_mlu_response(input_str: str):
-    scores, lines = get_metrics(input_str)
-    morph_lines = lines.morphemes
+    scores = get_metrics(input_str)
+    morph_lines = scores.morpheme_split_sample
+    morph_lines = morph_lines.replace("\n","<br>")
     mlu_score = round(scores.mlu, 2)
     # todo: make this a template
     resp = f"""<center><b><p style="font-size:20px">Total utterances: {scores.utterances}, morphemes: {scores.morphemes}, MLU: {mlu_score}</p></b></center><br>"""
-    resp += "<p>" + "<br>".join(morph_lines) + "</p>"
+    resp += "<p>" + morph_lines + "</p>"
 
     return resp
 
@@ -121,7 +122,7 @@ def metrics_table(scores, age_y, age_m, num_sd_criteria=2):
 
 
 def html_metrics_response(input_str: str, age_y: int, age_m: int):
-    scores, _ = get_metrics(input_str)
+    scores = get_metrics(input_str)
     curves_svg = draw_bellcurves(scores, age_y, age_m)
 
     rval = '<div style="text-align: center"> '

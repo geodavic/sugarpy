@@ -125,9 +125,8 @@ const LanguageAnalyticsApp = () => {
           <span className="text-sm text-white">v0.4</span>
         </div>
         <div className="mt-2 flex justify-end space-x-4">
-          <a href="" className="text-sm text-blue-300 hover:underline">Contact</a>
+          <a href="" className="text-sm text-blue-300 hover:underline">About & Contact</a>
           <a href="" className="text-sm text-blue-300 hover:underline">Source code</a>
-          <a href="" className="text-sm text-blue-300 hover:underline">languagesamples.com</a>
         </div>
       </header>
 
