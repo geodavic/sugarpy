@@ -31,12 +31,11 @@ const LanguageAnalyticsApp = () => {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ sample: inputText, age_y: ageYears, age_m: ageMonths })
       });
-  
+
       if (!response.ok) {
         let detailedError = '';
         try {
           const errorData = await response.json();
-          // If errorData.detail exists and is an array, extract each message.
           if (errorData.detail && Array.isArray(errorData.detail)) {
             detailedError = errorData.detail.map((err: any) => err.msg).join('\n');
           } else {
@@ -47,7 +46,7 @@ const LanguageAnalyticsApp = () => {
         }
         throw new Error(detailedError || response.statusText);
       }
-  
+
       const data = await response.json();
       setResults({
         mlu: {
@@ -88,7 +87,6 @@ const LanguageAnalyticsApp = () => {
       setLoading(false);
     }
   };
-  
 
   const openModal = (imageUrl: string) => {
     setModalImage(imageUrl);
@@ -120,6 +118,19 @@ const LanguageAnalyticsApp = () => {
 
   return (
     <div className="flex flex-col items-center p-6 min-h-screen">
+      {/* Header Section */}
+      <header className="w-full max-w-2xl mb-4">
+        <div className="flex justify-between items-baseline">
+          <h1 className="text-4xl font-bold text-white">Language Samples Calculator</h1>
+          <span className="text-sm text-white">v0.4</span>
+        </div>
+        <div className="mt-2 flex justify-end space-x-4">
+          <a href="" className="text-sm text-blue-300 hover:underline">Contact</a>
+          <a href="" className="text-sm text-blue-300 hover:underline">Source code</a>
+          <a href="" className="text-sm text-blue-300 hover:underline">languagesamples.com</a>
+        </div>
+      </header>
+
       {/* Input Section */}
       <div className="w-full max-w-2xl mb-4">
         <textarea
@@ -156,13 +167,21 @@ const LanguageAnalyticsApp = () => {
               ))}
             </select>
           </div>
-          <button
-            onClick={handleButtonClick}
-            disabled={loading}
-            className="flex items-center analytics-button white-bg"
-          >
-            {loading ? <Spinner /> : 'Calculate Metrics'}
-          </button>
+            <button
+              onClick={handleButtonClick}
+              disabled={loading}
+              className="flex items-center analytics-button white-bg justify-center relative min-w-[150px] py-2"
+            >
+              {/* Reserve the space with the text, but hide it when loading */}
+              <span className={loading ? "opacity-0" : "opacity-100"}>
+                Calculate Metrics
+              </span>
+              {loading && (
+                <span className="absolute inset-0 flex items-center justify-center">
+                  <Spinner />
+                </span>
+              )}
+            </button>
         </div>
         {/* Detailed Error Message */}
         {errorMessage && (
@@ -254,7 +273,6 @@ const LanguageAnalyticsApp = () => {
                 <div className="flex flex-col items-start space-y-2">
                   <hr className="w-full my-2 border-[#6A4952]" />
                   <div dangerouslySetInnerHTML={{ __html: results[activeTab].processedText }} />
-                  {/* Horizontal line and bolded formatted string */}
                   <hr className="w-full my-2 border-[#6A4952]" />
                   <div className="font-bold">
                     {getFormattedString(activeTab)}
@@ -269,11 +287,14 @@ const LanguageAnalyticsApp = () => {
       {/* Modal */}
       {isModalOpen && (
         <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
-          <div className="bg-white p-4 rounded-lg relative">
-            <button onClick={closeModal} className="absolute top-2 right-2 text-black white-bg">
+          <div className="bg-white p-4 rounded-lg flex flex-col items-center">
+            <div dangerouslySetInnerHTML={{ __html: modalImage }} className="rounded-lg" />
+            <button
+              onClick={closeModal}
+              className="mt-4 text-black white-bg px-4 py-2 rounded"
+            >
               Close
             </button>
-            <img src={modalImage} alt="Comparison to norms" className="rounded-lg" />
           </div>
         </div>
       )}

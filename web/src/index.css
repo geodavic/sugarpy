@@ -78,7 +78,7 @@ button:focus-visible {
 }
 
 .analytics-button:hover {
-  border-color: #50C2B4; /* changes on hover */
+  border-color: #8ec5ff; /* changes on hover */
 }
 
 /* Textarea styling with a thicker, brighter border */
@@ -101,7 +101,7 @@ textarea {
 
 /* Active tab: slightly lighter with rounded top corners */
 .tab-button.active {
-  background-color: #438774;
+  background-color: #8ec5ff;
   border: none; /* Remove any border */
   border-top-left-radius: 0.5rem;
   border-top-right-radius: 0.5rem;

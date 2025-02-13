@@ -58,22 +58,6 @@ def consolidate_metrics(metrics: List[SugarMetrics]):
     return total
 
 
-def _annotate_line(line: str, number: int, is_sentence: bool, metric: str):
-    if metric == "mlu":
-        return f"({number} morph.) {line}"
-    if metric == "wps":
-        if is_sentence:
-            return f"({number} words) {line}"
-        else:
-            return f"(n.a.s) {line}"
-    if metric == "cps":
-        if is_sentence:
-            multiple = "" if number == 1 else "s"
-            return f"({number} clause{multiple}) {line}"
-        else:
-            return f"(n.a.s) {line}"
-
-
 def get_metrics(input_str: str, consolidate=True):
     cm = MorphologyCounter(model_name=DEFAULT_MODEL)
     cs = SentenceCounter(nlp=cm.nlp)
