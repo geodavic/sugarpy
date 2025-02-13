@@ -12,7 +12,7 @@ import uvicorn
 app = FastAPI(
     contact={
         "name": "George D. Torres",
-        "url": "web.ma.utexas.edu/users/gdavtor",
+        "url": "http://web.ma.utexas.edu/users/gdavtor",
         "email": "gdavtor@gmail.com",
     },
     version="0.2",
