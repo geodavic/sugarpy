@@ -3,10 +3,12 @@ from typing import Optional
 
 
 class MetricItem(BaseModel):
-    score: float
+    score: Optional[float]
     img: str
     processed_text: Optional[str] = None
     within_guidelines: Optional[bool] = None
+    numerator: Optional[int] = None
+    denominator: Optional[int] = None
 
 
 class MetricsInput(BaseModel):
