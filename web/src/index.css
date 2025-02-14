@@ -70,6 +70,7 @@ button:focus-visible {
 /* Class for buttons that should have a white background */
 .white-bg {
   background-color: #ffffff;
+  outline: 0px;
 }
 
 /* Custom analytics (submit) button styling */

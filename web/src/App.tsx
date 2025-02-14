@@ -152,8 +152,16 @@ const LanguageAnalyticsApp = () => {
           <span className="text-sm text-white">v0.4</span>
         </div>
         <div className="mt-2 flex justify-end space-x-4">
-          <a href="" className="text-sm text-blue-300 hover:underline">About & Contact</a>
-          <a href="" className="text-sm text-blue-300 hover:underline">Source code</a>
+          <a href="/about.html" className="text-sm text-blue-300 hover:underline">About & Contact</a>
+          <a href="/help.html" className="text-sm text-blue-300 hover:underline">Help</a>
+          <a 
+            href="https://github.com/geodavic/sugarpy" 
+            target="_blank" 
+            rel="noopener noreferrer"
+            className="text-sm text-blue-300 hover:underline"
+          >
+            Source code
+          </a>
         </div>
       </header>
 
@@ -175,8 +183,8 @@ const LanguageAnalyticsApp = () => {
               onChange={(e) => setAgeYears(Number(e.target.value))}
               className="p-1 rounded white-bg text-black"
             >
-              {[...Array(11).keys()].map((num) => (
-                <option key={num} value={num}>{num}</option>
+              {[...Array(11-3).keys()].map((num) => (
+                <option key={num+3} value={num+3}>{num+3}</option>
               ))}
             </select>
           </div>
