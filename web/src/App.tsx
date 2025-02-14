@@ -1,5 +1,30 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import './index.css';
+
+type DetailedMetric = 'mlu' | 'wps' | 'cps';
+
+interface MetricResultWithDetails {
+  score: number | null;
+  processedText: string;
+  imageUrl: string;
+  meetsCriteria: boolean;
+  numerator: number | null;
+  denominator: number | null;
+}
+
+interface TnwResult {
+  score: number | null;
+  processedText: string;
+  imageUrl: string;
+  meetsCriteria: boolean;
+}
+
+interface MetricsResults {
+  mlu: MetricResultWithDetails;
+  wps: MetricResultWithDetails;
+  cps: MetricResultWithDetails;
+  tnw: TnwResult;
+}
 
 const Spinner = () => (
   <div className="animate-spin border-t-2 border-b-2 border-black rounded-full w-5 h-5"></div>
@@ -11,13 +36,13 @@ const LanguageAnalyticsApp = () => {
   const [ageMonths, setAgeMonths] = useState(0);
   const [loading, setLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
-  const [results, setResults] = useState({
+  const [results, setResults] = useState<MetricsResults>({
     mlu: { score: null, processedText: '', imageUrl: '', meetsCriteria: false, numerator: null, denominator: null },
     wps: { score: null, processedText: '', imageUrl: '', meetsCriteria: false, numerator: null, denominator: null },
     cps: { score: null, processedText: '', imageUrl: '', meetsCriteria: false, numerator: null, denominator: null },
     tnw: { score: null, processedText: '', imageUrl: '', meetsCriteria: false }
   });
-  const [activeTab, setActiveTab] = useState('mlu');
+  const [activeTab, setActiveTab] = useState<DetailedMetric>('mlu');
   const [modalImage, setModalImage] = useState('');
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [tabsOpen, setTabsOpen] = useState(false);
@@ -100,7 +125,7 @@ const LanguageAnalyticsApp = () => {
 
   const hasResults = Object.values(results).some(result => result.score !== null);
 
-  const getFormattedString = (metric: string) => {
+  const getFormattedString = (metric: DetailedMetric) => {
     const result = results[metric];
     if (!result) return '';
     const formattedScore = result.score === null ? 'N/A' : result.score.toFixed(2);
@@ -166,21 +191,21 @@ const LanguageAnalyticsApp = () => {
               ))}
             </select>
           </div>
-            <button
-              onClick={handleButtonClick}
-              disabled={loading}
-              className="flex items-center analytics-button white-bg justify-center relative min-w-[150px] py-2"
-            >
-              {/* Reserve the space with the text, but hide it when loading */}
-              <span className={loading ? "opacity-0" : "opacity-100"}>
-                Calculate Metrics
+          <button
+            onClick={handleButtonClick}
+            disabled={loading}
+            className="flex items-center analytics-button white-bg justify-center relative min-w-[150px] py-2"
+          >
+            {/* Reserve the space with the text, but hide it when loading */}
+            <span className={loading ? "opacity-0" : "opacity-100"}>
+              Calculate Metrics
+            </span>
+            {loading && (
+              <span className="absolute inset-0 flex items-center justify-center">
+                <Spinner />
               </span>
-              {loading && (
-                <span className="absolute inset-0 flex items-center justify-center">
-                  <Spinner />
-                </span>
-              )}
-            </button>
+            )}
+          </button>
         </div>
         {/* Detailed Error Message */}
         {errorMessage && (
@@ -192,7 +217,7 @@ const LanguageAnalyticsApp = () => {
 
       {hasResults && (
         <>
-          {/* Summary Table in Its Own Results Container */}
+          {/* Summary Table */}
           <div className="results-container w-full max-w-2xl mt-6 p-4 text-white">
             <table className="w-full">
               <thead>
@@ -204,7 +229,7 @@ const LanguageAnalyticsApp = () => {
                 </tr>
               </thead>
               <tbody>
-                {['mlu', 'wps', 'cps', 'tnw'].map(metric => {
+                {(['mlu', 'wps', 'cps', 'tnw'] as (keyof MetricsResults)[]).map(metric => {
                   const result = results[metric];
                   return (
                     <tr key={metric}>
@@ -234,7 +259,7 @@ const LanguageAnalyticsApp = () => {
             </table>
           </div>
 
-          {/* Clickable Div to Toggle Detailed Analysis */}
+          {/* Toggle Detailed Analysis */}
           <div
             className="results-container w-full max-w-2xl mt-4 p-2 text-white text-center cursor-pointer"
             onClick={() => setTabsOpen(!tabsOpen)}
@@ -242,11 +267,11 @@ const LanguageAnalyticsApp = () => {
             {tabsOpen ? 'Hide Details' : 'Show Details'}
           </div>
 
-          {/* Collapsible Detailed Processed Text with Tabs in Its Own Results Container */}
+          {/* Detailed Processed Text with Tabs */}
           {tabsOpen && (
             <div className="results-container w-full max-w-2xl mt-6 p-4 text-white">
               <nav role="tablist" aria-label="Metrics" className="flex w-full mb-4">
-                {['mlu', 'wps', 'cps'].map(metric => {
+                {(['mlu', 'wps', 'cps'] as DetailedMetric[]).map(metric => {
                   const isActive = activeTab === metric;
                   return (
                     <button
