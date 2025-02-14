@@ -30,6 +30,8 @@ const Spinner = () => (
   <div className="animate-spin border-t-2 border-b-2 border-black rounded-full w-5 h-5"></div>
 );
 
+const apiUrl = import.meta.env.VITE_METRICS_URL || 'http://0.0.0.0:5000/v2/metrics';
+
 const LanguageAnalyticsApp = () => {
   const [inputText, setInputText] = useState('');
   const [ageYears, setAgeYears] = useState(4);
@@ -51,7 +53,7 @@ const LanguageAnalyticsApp = () => {
     setLoading(true);
     setErrorMessage(''); // Clear any previous error
     try {
-      const response = await fetch(`http://0.0.0.0:5000/v2/metrics`, {
+      const response = await fetch(apiUrl, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ sample: inputText, age_y: ageYears, age_m: ageMonths })
