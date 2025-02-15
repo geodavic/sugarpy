@@ -23,7 +23,8 @@ def draw_bellcurve(score, age_y, age_m, metric):
     plt.clf()
     plt.figure(figsize=(10, 3))
     figure, axis = plt.gcf(), plt.gca()
-    mean, sd = get_norms(age_y, age_m, metric)
+    norms = get_norms(age_y, age_m, metric)
+    mean, sd = norms["mean_score"], norms["sd"]
 
     x = np.linspace(mean-4*sd, mean+4*sd, 200)
     y = 1/(sd * math.sqrt(2 * math.pi)) * np.exp(-0.5 * ((x-mean)/sd) ** 2)

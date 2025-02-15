@@ -30,23 +30,32 @@ const AboutPage = () => {
       {/* Content Section */}
       <div className="w-full max-w-2xl p-4 bg-white text-black rounded">
         <p className="mb-4">
-          Lorem ipsum dolor sit amet, consectetur adipiscing elit. Praesent ut
-          ligula non mi varius sagittis. Nullam quis ante. Etiam sit amet orci eget
-          eros faucibus tincidunt. Duis leo. Sed fringilla mauris sit amet nibh.
+            This is a language sample calculator based on the <a href="https://www.sugarlanguage.org/" target="_blank">SUGAR</a> method for evaluating language impairments in children. From the SUGAR website:
+            <br></br>
+            <br></br>
+            <blockquote cite="https://www.sugarlanguage.org/">
+            <i>SUGAR is a tool for enabling speech-language pathologists (SLPs) to use language sample analysis (LSA) as a regular part of a comprehensive assessment of children with possible language impairment.</i>
+            </blockquote>
+            <br></br> 
+            Given a 50-utterance langauge sample from a child collected by a professional SLP, this tool uses Natural Language Processing and Machine Learning to calculate the four SUGAR metrics: <b>Mean Length of Utterance (MLU)</b>, <b>Clauses Per Sentence (CPS)</b>, <b>Words Per Sentence (WPS)</b>, and <b>Total Number of Words (TNW)</b> for that sample. If some or all of a child's scores fall significantly below established averages, it is an indication of language impairment. 
         </p>
+        <hr className="w-full my-2 border" />
         <p className="mb-4">
+          This tool was developed by Dr. George D. Torres, a machine learning scientist, and Dr. Kristen K. Torres, a professional Speech Language Pathologist.
+          <br></br>
+          <br></br>
           For inquiries or more information, please email us at{' '}
           <a
-            href="mailto:contact@example.com"
+            href="mailto:digitalmetricsfortheslp@gmail.com"
             className="text-blue-500 hover:underline"
           >
-            contact@example.com
+            digitalmetricsfortheslp@gmail.com
           </a>.
         </p>
         <p className="mb-4">
           Visit our{' '}
           <a
-            href="https://example.com"
+            href="https://www.languagesamples.com/home"
             className="text-blue-500 hover:underline"
             target="_blank"
             rel="noopener noreferrer"
@@ -55,27 +64,8 @@ const AboutPage = () => {
           </a>{' '}
           for additional resources.
         </p>
-        <p>
-          Follow us on{' '}
-          <a
-            href="https://twitter.com/example"
-            className="text-blue-500 hover:underline"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Twitter
-          </a>{' '}
-          or check out our{' '}
-          <a
-            href="https://linkedin.com/in/example"
-            className="text-blue-500 hover:underline"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            LinkedIn
-          </a>{' '}
-          page.
-        </p>
+        <hr className="w-full my-2 border" />
+        <b>Disclaimer:</b> Please be sure to credit the SUGAR authors, Dr. Robert Owens and Dr. Stacey Pavelko, when using the SUGAR methodology.
       </div>
     </div>
   );

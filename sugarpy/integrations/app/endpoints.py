@@ -7,9 +7,9 @@ import os
 
 
 def html_mlu_response(input_str: str):
-    scores = get_metrics(input_str)
+    scores = get_metrics(input_str.split("\n"))
     morph_lines = scores.morpheme_split_sample
-    morph_lines = morph_lines.replace("\n","<br>")
+    morph_lines = morph_lines.replace("\n", "<br>")
     mlu_score = round(scores.mlu, 2)
     # todo: make this a template
     resp = f"""<center><b><p style="font-size:20px">Total utterances: {scores.utterances}, morphemes: {scores.morphemes}, MLU: {mlu_score}</p></b></center><br>"""
@@ -27,8 +27,9 @@ def draw_bellcurves(scores, age_y, age_m):
     plt.clf()
 
     figure, axis = plt.subplots(4, 1, figsize=(8, 12.8))
+    norms = get_norms(age_y, age_m, "tnw")
+    mean, sd = norms["mean_score"], norms["sd"]
 
-    mean, sd = get_norms(age_y, age_m, "tnw")
     x = np.linspace(mean - 4 * sd, mean + 4 * sd, 200)
     y = 1 / (sd * math.sqrt(2 * math.pi)) * np.exp(-0.5 * ((x - mean) / sd) ** 2)
     score = scores.tnw
@@ -41,7 +42,8 @@ def draw_bellcurves(scores, age_y, age_m):
     axis[0].title.set_text(title)
     [s.set_visible(False) for s in axis[0].spines.values()]
 
-    mean, sd = get_norms(age_y, age_m, "mlu")
+    norms = get_norms(age_y, age_m, "mlu")
+    mean, sd = norms["mean_score"], norms["sd"]
     x = np.linspace(mean - 4 * sd, mean + 4 * sd, 200)
     y = 1 / (sd * math.sqrt(2 * math.pi)) * np.exp(-0.5 * ((x - mean) / sd) ** 2)
     score = round(scores.mlu, 2)
@@ -55,7 +57,8 @@ def draw_bellcurves(scores, age_y, age_m):
     [s.set_visible(False) for s in axis[1].spines.values()]
 
     if scores.wps != np.inf:
-        mean, sd = get_norms(age_y, age_m, "wps")
+        norms = get_norms(age_y, age_m, "wps")
+        mean, sd = norms["mean_score"], norms["sd"]
         x = np.linspace(mean - 4 * sd, mean + 4 * sd, 200)
         y = 1 / (sd * math.sqrt(2 * math.pi)) * np.exp(-0.5 * ((x - mean) / sd) ** 2)
         score = round(scores.wps, 2)
@@ -71,7 +74,8 @@ def draw_bellcurves(scores, age_y, age_m):
         figure.delaxes(axis[2])
 
     if scores.cps != np.inf:
-        mean, sd = get_norms(age_y, age_m, "cps")
+        norms = get_norms(age_y, age_m, "cps")
+        mean, sd = norms["mean_score"], norms["sd"]
         x = np.linspace(mean - 4 * sd, mean + 4 * sd, 200)
         y = 1 / (sd * math.sqrt(2 * math.pi)) * np.exp(-0.5 * ((x - mean) / sd) ** 2)
         score = round(scores.cps, 2)
@@ -107,8 +111,8 @@ def metrics_table(scores, age_y, age_m, num_sd_criteria=2):
         ("cps", "Clauses per sentence (CPS)"),
     ]
     for metric, name in metrics:
-        mean, sd = get_norms(age_y, age_m, metric)
-        score = getattr(scores, metric)
+        norms = get_norms(age_y, age_m, metric)
+        mean, sd = norms["mean_score"], norms["sd"]
         meets_criteria = "Yes" if score > mean - num_sd_criteria * sd else "No"
         if score == np.inf:
             meets_criteria = "N/A"
@@ -122,7 +126,7 @@ def metrics_table(scores, age_y, age_m, num_sd_criteria=2):
 
 
 def html_metrics_response(input_str: str, age_y: int, age_m: int):
-    scores = get_metrics(input_str)
+    scores = get_metrics(input_str.split("\n"))
     curves_svg = draw_bellcurves(scores, age_y, age_m)
 
     rval = '<div style="text-align: center"> '

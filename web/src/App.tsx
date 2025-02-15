@@ -30,7 +30,7 @@ const Spinner = () => (
   <div className="animate-spin border-t-2 border-b-2 border-black rounded-full w-5 h-5"></div>
 );
 
-const apiUrl = import.meta.env.VITE_METRICS_URL || 'http://0.0.0.0:5000/v2/metrics';
+const apiUrl = import.meta.env.VITE_SUGARPY_BASE_URL || 'http://0.0.0.0:5000';
 
 const LanguageAnalyticsApp = () => {
   const [inputText, setInputText] = useState('');
@@ -52,59 +52,89 @@ const LanguageAnalyticsApp = () => {
   const handleButtonClick = async () => {
     setLoading(true);
     setErrorMessage(''); // Clear any previous error
+
     try {
-      const response = await fetch(apiUrl, {
+      // Call the web-metrics endpoint without the age field
+      const webMetricsResponse = await fetch(apiUrl + "/v2/web-metrics", {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ sample: inputText, age_y: ageYears, age_m: ageMonths })
+        body: JSON.stringify({ sample: inputText, age: {years: ageYears, months: ageMonths }})
       });
 
-      if (!response.ok) {
+      if (!webMetricsResponse.ok) {
         let detailedError = '';
         try {
-          const errorData = await response.json();
+          const errorData = await webMetricsResponse.json();
           if (errorData.detail && Array.isArray(errorData.detail)) {
             detailedError = errorData.detail.map((err: any) => err.msg).join('\n');
           } else {
             detailedError = errorData.detail || errorData.message || JSON.stringify(errorData);
           }
         } catch (jsonErr) {
-          detailedError = await response.text();
+          detailedError = await webMetricsResponse.text();
         }
-        throw new Error(detailedError || response.statusText);
+        throw new Error(detailedError || webMetricsResponse.statusText);
       }
 
-      const data = await response.json();
+      const webMetricsData = await webMetricsResponse.json();
+
+      // List of metrics for which norms must be fetched
+      const metrics = ['mlu', 'wps', 'cps', 'tnw'];
+      // Fetch norms for each metric in parallel
+      const normsResponses = await Promise.all(
+        metrics.map(metric =>
+          fetch(apiUrl + "/v2/norms", {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ age: { years: ageYears, months: ageMonths }, metric })
+          }).then(async response => {
+            if (!response.ok) {
+              throw new Error(`Error fetching norms for ${metric}`);
+            }
+            return response.json();
+          })
+        )
+      );
+
+      // Compute meetsCriteria based on norms data
       setResults({
         mlu: {
-          score: data.mlu.score,
-          processedText: data.mlu.processed_text,
-          imageUrl: data.mlu.img,
-          meetsCriteria: data.mlu.within_guidelines,
-          numerator: data.mlu.numerator,
-          denominator: data.mlu.denominator
+          score: webMetricsData.mlu.score,
+          processedText: webMetricsData.mlu.processed_text,
+          imageUrl: webMetricsData.mlu.img,
+          meetsCriteria:
+            webMetricsData.mlu.score !== null &&
+            webMetricsData.mlu.score > (normsResponses[0].mean_score - 2 * normsResponses[0].standard_deviation),
+          numerator: webMetricsData.mlu.numerator,
+          denominator: webMetricsData.mlu.denominator
         },
         wps: {
-          score: data.wps.score,
-          processedText: data.wps.processed_text,
-          imageUrl: data.wps.img,
-          meetsCriteria: data.wps.within_guidelines,
-          numerator: data.wps.numerator,
-          denominator: data.wps.denominator
+          score: webMetricsData.wps.score,
+          processedText: webMetricsData.wps.processed_text,
+          imageUrl: webMetricsData.wps.img,
+          meetsCriteria:
+            webMetricsData.wps.score !== null &&
+            webMetricsData.wps.score > (normsResponses[1].mean_score - 2 * normsResponses[1].standard_deviation),
+          numerator: webMetricsData.wps.numerator,
+          denominator: webMetricsData.wps.denominator
         },
         cps: {
-          score: data.cps.score,
-          processedText: data.cps.processed_text,
-          imageUrl: data.cps.img,
-          meetsCriteria: data.cps.within_guidelines,
-          numerator: data.cps.numerator,
-          denominator: data.cps.denominator
+          score: webMetricsData.cps.score,
+          processedText: webMetricsData.cps.processed_text,
+          imageUrl: webMetricsData.cps.img,
+          meetsCriteria:
+            webMetricsData.cps.score !== null &&
+            webMetricsData.cps.score > (normsResponses[2].mean_score - 2 * normsResponses[2].standard_deviation),
+          numerator: webMetricsData.cps.numerator,
+          denominator: webMetricsData.cps.denominator
         },
         tnw: {
-          score: data.tnw.score,
-          processedText: data.tnw.processed_text,
-          imageUrl: data.tnw.img,
-          meetsCriteria: data.tnw.within_guidelines
+          score: webMetricsData.tnw.score,
+          processedText: webMetricsData.tnw.processed_text,
+          imageUrl: webMetricsData.tnw.img,
+          meetsCriteria:
+            webMetricsData.tnw.score !== null &&
+            webMetricsData.tnw.score > (normsResponses[3].mean_score - 2 * normsResponses[3].standard_deviation)
         }
       });
     } catch (error: any) {

@@ -18,6 +18,11 @@
   -moz-osx-font-smoothing: grayscale;
 }
 
+blockquote {
+  margin-left: 40px;
+  padding-left: 20px;
+}
+
 a {
   font-weight: 500;
   color: #646cff;

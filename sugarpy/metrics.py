@@ -58,12 +58,15 @@ def consolidate_metrics(metrics: List[SugarMetrics]):
     return total
 
 
-def get_metrics(input_str: str, consolidate=True):
+def get_metrics(input_samples: List[str], consolidate=True):
+    """
+    Main metrics function.
+    """
     cm = MorphologyCounter(model_name=DEFAULT_MODEL)
     cs = SentenceCounter(nlp=cm.nlp)
     computed_metrics = []
 
-    for utterance in input_str.split("\n"):
+    for utterance in input_samples:
         if utterance.strip():
             morph_line, num_morph, num_words = cm.count(utterance.strip())
             num_sent, num_clauses, num_words, words_in_sentences = cs.count(

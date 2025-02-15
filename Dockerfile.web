@@ -8,7 +8,7 @@ RUN npm install
 
 COPY ./web .
 
-ENV VITE_METRICS_URL=https://sugarpy-976929012397.us-central1.run.app/v2/metrics
+ENV VITE_SUGARPY_BASE_URL=https://sugarpy-976929012397.us-central1.run.app
 
 RUN npm run build
 

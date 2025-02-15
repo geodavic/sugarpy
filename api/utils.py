@@ -1,7 +1,6 @@
 from sugarpy.metrics import SugarMetrics, consolidate_metrics
-from sugarpy.norms import is_within_norms
 from sugarpy.metrics import consolidate_metrics
-from model import MetricsOutput, MetricItem, MetricsInput
+from model import AppMetricsOutput, AppMetricItem, Age, MetricsOutput
 from draw import draw_bellcurve
 import numpy as np
 from tabulate import tabulate
@@ -33,50 +32,54 @@ def get_processed_string(itemized_sugar_metrics: List[SugarMetrics], metric: str
     return tabulate(rows, **tabulate_kwargs)
 
 
-def convert_sugar_metrics_to_api_response(
+def convert_sugar_metrics_to_app_response(
     itemized_sugar_metrics: List[SugarMetrics],
-    metrics_input: MetricsInput,
+    age: Age
 ):
     sugar_metrics = consolidate_metrics(itemized_sugar_metrics)
-    output = MetricsOutput(
-        mlu=MetricItem(
+    output = AppMetricsOutput(
+        number_of_utterances=sugar_metrics.utterances,
+        mlu=AppMetricItem(
             score=convert_float_to_json(sugar_metrics.mlu),
             processed_text=get_processed_string(itemized_sugar_metrics, "mlu"),
-            img=draw_bellcurve(sugar_metrics.mlu, metrics_input.age_y, metrics_input.age_m, "mlu"),
-            within_guidelines=is_within_norms(
-                sugar_metrics.mlu, metrics_input.age_y, metrics_input.age_m, "mlu"
-            ),
+            img=draw_bellcurve(sugar_metrics.mlu, age.years, age.months, "mlu"),
             numerator=sugar_metrics.morphemes,
             denominator=sugar_metrics.utterances,
         ),
-        wps=MetricItem(
+        wps=AppMetricItem(
             score=convert_float_to_json(sugar_metrics.wps),
             processed_text=get_processed_string(itemized_sugar_metrics, "wps"),
-            img=draw_bellcurve(sugar_metrics.wps, metrics_input.age_y, metrics_input.age_m, "wps"),
-            within_guidelines=is_within_norms(
-                sugar_metrics.wps, metrics_input.age_y, metrics_input.age_m, "wps"
-            ),
+            img=draw_bellcurve(sugar_metrics.wps, age.years, age.months, "wps"),
             numerator=sugar_metrics.words_in_sentences,
             denominator=sugar_metrics.sentences,
         ),
-        cps=MetricItem(
+        cps=AppMetricItem(
             score=convert_float_to_json(sugar_metrics.cps),
             processed_text=get_processed_string(itemized_sugar_metrics, "cps"),
-            img=draw_bellcurve(sugar_metrics.cps, metrics_input.age_y, metrics_input.age_m, "cps"),
-            within_guidelines=is_within_norms(
-                sugar_metrics.cps, metrics_input.age_y, metrics_input.age_m, "cps"
-            ),
+            img=draw_bellcurve(sugar_metrics.cps, age.years, age.months, "cps"),
             numerator=sugar_metrics.clauses,
             denominator=sugar_metrics.sentences,
         ),
-        tnw=MetricItem(
+        tnw=AppMetricItem(
             score=sugar_metrics.tnw,
             processed_text=None,
-            img=draw_bellcurve(sugar_metrics.tnw, metrics_input.age_y, metrics_input.age_m, "tnw"),
-            within_guidelines=is_within_norms(
-                sugar_metrics.tnw, metrics_input.age_y, metrics_input.age_m, "tnw"
-            ),
+            img=draw_bellcurve(sugar_metrics.tnw, age.years, age.months, "tnw"),
         ),
     )
 
     return output
+
+def convert_sugar_metrics_to_api_response(
+    sugar_metrics: SugarMetrics
+):
+    return MetricsOutput(
+        utterances=sugar_metrics.utterances,
+        morphemes=sugar_metrics.morphemes,
+        words_in_sentences=sugar_metrics.words_in_sentences,
+        sentences=sugar_metrics.sentences,
+        clauses=sugar_metrics.clauses,
+        mlu=sugar_metrics.mlu,
+        wps=sugar_metrics.wps,
+        cps=sugar_metrics.cps,
+        tnw=sugar_metrics.tnw,
+    )
