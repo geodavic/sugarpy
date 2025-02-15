@@ -1,3 +1,4 @@
+import { Link } from 'react-router-dom';
 import './index.css';
 
 const HelpPage = () => {
@@ -9,12 +10,8 @@ const HelpPage = () => {
           <h1 className="text-4xl font-bold text-white">Help</h1>
         </div>
         <div className="mt-2 flex justify-end space-x-4">
-          <a href="index.html" className="text-sm text-blue-300 hover:underline">
-            Home
-          </a>
-          <a href="about.html" className="text-sm text-blue-300 hover:underline">
-            About & Contact
-          </a>
+          <Link to="/" className="text-sm text-blue-300 hover:underline">Home</Link>
+          <Link to="/about" className="text-sm text-blue-300 hover:underline">About & Contact</Link>
           <a
             href="https://github.com/geodavic/sugarpy"
             className="text-sm text-blue-300 hover:underline"
