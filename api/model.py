@@ -88,26 +88,6 @@ class AssetRequest(BaseModel):
     response_format: AssetResponseFormat
     age: Age
     scores: Dict[MetricName, float]
-    sd_threshold: Optional[int] = None
-
-    @model_validator(mode="after")
-    def should_use_sd_threshold(self):
-        if self.type == AssetType.METRIC_TABLE and sd_threshold is None:
-            raise ValueError(
-                "If requesting a metric table asset, must pass `sd_threshold`"
-            )
-        return self
-
-    @model_validator(mode="after")
-    def no_svg_for_table(self):
-        if (
-            self.type == AssetType.METRIC_TABLE
-            and self.response_format == AssetResponseFormat.SVG
-        ):
-            raise ValueError(
-                "If requesting a metric table asset, `response_format` must be `png`"
-            )
-        return self
 
 
 class AssetResponse(BaseModel):

@@ -3,3 +3,5 @@
 web/node_modules/*
 *.swp
 .DS_STORE
+*.png
+*.svg

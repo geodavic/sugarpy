@@ -8,15 +8,15 @@ import base64
 from io import BytesIO
 
 
-def metric_to_title(metric, score):
+def metric_to_formatted_score(metric, score):
     if metric == "mlu":
-        return f"MLU score: {score:.2f}"
+        return f"{score:.2f}"
     if metric == "cps":
-        return f"CPS score: {score:.2f}"
+        return f"{score:.2f}"
     if metric == "tnw":
-        return f"TNW score: {int(score)}"
+        return f"{int(score)}"
     if metric == "wps":
-        return f"WPS score: {score:.2f}"
+        return f"{score:.2f}"
 
 
 def _create_labels(ticks):
@@ -30,7 +30,7 @@ def _draw_bellcurve(figure, axis, score, age_y, age_m, metric):
 
     x = np.linspace(mean - 4 * sd, mean + 4 * sd, 200)
     y = 1 / (sd * math.sqrt(2 * math.pi)) * np.exp(-0.5 * ((x - mean) / sd) ** 2)
-    title = metric_to_title(metric, score)
+    title = f"{metric.upper()} score: {metric_to_formatted_score(metric, score)}"
 
     axis.fill_between(x, y, color="b", alpha=0.2)
     axis.tick_params(left=False, labelleft=False)
