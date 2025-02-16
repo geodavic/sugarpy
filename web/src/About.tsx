@@ -37,7 +37,7 @@ const AboutPage = () => {
         </p>
         <hr className="w-full my-2 border" />
         <p className="mb-4">
-          This tool was developed by Dr. George D. Torres, a machine learning scientist, and Dr. Kristen K. Torres, a professional Speech Language Pathologist.
+          This tool was developed and built by by Dr. George D. Torres, a machine learning scientist, in collaboration with Dr. Kristen K. Torres, a professional Speech Language Pathologist.
           <br></br>
           <br></br>
           For inquiries or more information, please email us at{' '}

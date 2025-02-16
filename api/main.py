@@ -96,5 +96,6 @@ async def get_norms_by_age(norm_input: NormInput) -> NormOutput:
         standard_deviation=norms["sd"]
     )
 
+
 if __name__ == "__main__":
     uvicorn.run(app, host="0.0.0.0", port=5000)
