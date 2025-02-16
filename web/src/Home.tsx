@@ -55,11 +55,11 @@ const LanguageAnalyticsApp = () => {
     setErrorMessage(''); // Clear any previous error
 
     try {
-      // Call the web-metrics endpoint without the age field
+      // Call the web-metrics endpoint with the text sample and age parameters
       const webMetricsResponse = await fetch(apiUrl + "/v2/web-metrics", {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ sample: inputText, age: {years: ageYears, months: ageMonths }})
+        body: JSON.stringify({ sample: inputText, age: { years: ageYears, months: ageMonths }})
       });
 
       if (!webMetricsResponse.ok) {
@@ -79,8 +79,9 @@ const LanguageAnalyticsApp = () => {
 
       const webMetricsData = await webMetricsResponse.json();
 
-      // List of metrics for which norms must be fetched
+      // List of metrics for which norms and assets must be fetched
       const metrics = ['mlu', 'wps', 'cps', 'tnw'];
+
       // Fetch norms for each metric in parallel
       const normsResponses = await Promise.all(
         metrics.map(metric =>
@@ -97,12 +98,36 @@ const LanguageAnalyticsApp = () => {
         )
       );
 
-      // Compute meetsCriteria based on norms data
+      // Fetch the image assets for each metric from the new /v2/assets endpoint
+      const assetsResponses = await Promise.all(
+        metrics.map(metric =>
+          fetch(apiUrl + "/v2/assets", {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'accept': 'application/json'
+            },
+            body: JSON.stringify({
+              type: 'bell_curve',
+              response_format: 'svg',
+              age: { years: ageYears, months: ageMonths },
+              scores: { [metric]: webMetricsData[metric].score }
+            })
+          }).then(async response => {
+            if (!response.ok) {
+              throw new Error(`Error fetching asset for ${metric}`);
+            }
+            return response.json();
+          })
+        )
+      );
+
+      // Update state with new results including the assets from /v2/assets
       setResults({
         mlu: {
           score: webMetricsData.mlu.score,
           processedText: webMetricsData.mlu.processed_text,
-          imageUrl: webMetricsData.mlu.img,
+          imageUrl: assetsResponses[0].asset,
           meetsCriteria:
             webMetricsData.mlu.score !== null &&
             webMetricsData.mlu.score > (normsResponses[0].mean_score - 2 * normsResponses[0].standard_deviation),
@@ -112,7 +137,7 @@ const LanguageAnalyticsApp = () => {
         wps: {
           score: webMetricsData.wps.score,
           processedText: webMetricsData.wps.processed_text,
-          imageUrl: webMetricsData.wps.img,
+          imageUrl: assetsResponses[1].asset,
           meetsCriteria:
             webMetricsData.wps.score !== null &&
             webMetricsData.wps.score > (normsResponses[1].mean_score - 2 * normsResponses[1].standard_deviation),
@@ -122,7 +147,7 @@ const LanguageAnalyticsApp = () => {
         cps: {
           score: webMetricsData.cps.score,
           processedText: webMetricsData.cps.processed_text,
-          imageUrl: webMetricsData.cps.img,
+          imageUrl: assetsResponses[2].asset,
           meetsCriteria:
             webMetricsData.cps.score !== null &&
             webMetricsData.cps.score > (normsResponses[2].mean_score - 2 * normsResponses[2].standard_deviation),
@@ -132,7 +157,7 @@ const LanguageAnalyticsApp = () => {
         tnw: {
           score: webMetricsData.tnw.score,
           processedText: webMetricsData.tnw.processed_text,
-          imageUrl: webMetricsData.tnw.img,
+          imageUrl: assetsResponses[3].asset,
           meetsCriteria:
             webMetricsData.tnw.score !== null &&
             webMetricsData.tnw.score > (normsResponses[3].mean_score - 2 * normsResponses[3].standard_deviation)

@@ -1,7 +1,19 @@
 from pydantic import BaseModel, model_validator
-from typing import Optional, List
+from typing import Optional, List, Dict
 from sugarpy.norms import MIN_AGE, MAX_AGE
 from sugarpy import MetricName
+from enum import Enum
+
+
+class AssetType(str, Enum):
+    BELL_CURVE = "bell_curve"
+    METRIC_TABLE = "metric_table"
+
+
+class AssetResponseFormat(str, Enum):
+    PNG = "png"
+    SVG = "svg"
+
 
 class Age(BaseModel):
     years: int
@@ -15,16 +27,18 @@ class Age(BaseModel):
                 f"Cannot accept ages outside of the allowed range ({MIN_AGE} to {MAX_AGE} months)"
             )
         return self
-    
+
     @classmethod
     def from_int(cls, i: int):
-        y = i//12
-        m = i - (y*12)
-        return cls(years=y,months=m)
+        y = i // 12
+        m = i - (y * 12)
+        return cls(years=y, months=m)
+
 
 class NormInput(BaseModel):
     age: Age
     metric: MetricName
+
 
 class NormOutput(BaseModel):
     min_age: Age
@@ -32,16 +46,18 @@ class NormOutput(BaseModel):
     mean_score: float
     standard_deviation: float
 
+
 class AppMetricItem(BaseModel):
     score: Optional[float]
-    img: str
     processed_text: Optional[str] = None
     numerator: Optional[int] = None
     denominator: Optional[int] = None
 
+
 class AppMetricsInput(BaseModel):
     sample: str
     age: Age
+
 
 class AppMetricsOutput(BaseModel):
     number_of_utterances: int
@@ -50,8 +66,10 @@ class AppMetricsOutput(BaseModel):
     cps: AppMetricItem
     tnw: AppMetricItem
 
+
 class MetricsInput(BaseModel):
     samples: List[str]
+
 
 class MetricsOutput(BaseModel):
     utterances: int
@@ -63,3 +81,35 @@ class MetricsOutput(BaseModel):
     wps: float
     cps: float
     tnw: int
+
+
+class AssetRequest(BaseModel):
+    type: AssetType
+    response_format: AssetResponseFormat
+    age: Age
+    scores: Dict[MetricName, float]
+    sd_threshold: Optional[int] = None
+
+    @model_validator(mode="after")
+    def should_use_sd_threshold(self):
+        if self.type == AssetType.METRIC_TABLE and sd_threshold is None:
+            raise ValueError(
+                "If requesting a metric table asset, must pass `sd_threshold`"
+            )
+        return self
+
+    @model_validator(mode="after")
+    def no_svg_for_table(self):
+        if (
+            self.type == AssetType.METRIC_TABLE
+            and self.response_format == AssetResponseFormat.SVG
+        ):
+            raise ValueError(
+                "If requesting a metric table asset, `response_format` must be `png`"
+            )
+        return self
+
+
+class AssetResponse(BaseModel):
+    format: AssetResponseFormat
+    asset: str
