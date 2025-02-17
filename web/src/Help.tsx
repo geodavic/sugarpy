@@ -1,7 +1,9 @@
 import { Link } from 'react-router-dom';
 import './index.css';
 
+
 const HelpPage = () => {
+  const imgRoot = import.meta.env.VITE_SUGARPY_BASE_URL ? "./" : "/";
   return (
     <div className="flex flex-col items-center p-6 min-h-screen">
       {/* Header Section */}
@@ -48,7 +50,7 @@ const HelpPage = () => {
 
         <h2 className="text-xl font-bold"> Step 3: Check </h2>
         When it finishes, it will show the four SUGAR scores in a table like this:
-        <img src="/help-table.png"></img>
+        <img src={imgRoot + "help-table.png"}></img>
 
         Here you can see the individual scores and whether they meet the normative criteria. A score meets the criteria if it is above two standard deviations below the mean. You can see what the means and standard deviations are across age groups on the SUGAR <a href="https://www.sugarlanguage.org/downloads" target="_blank">downloads</a> page.
 
@@ -57,13 +59,13 @@ const HelpPage = () => {
         <br></br>
 
         If you want to see how the tool got these numbers, click on "Show Details". There you will see, for each score, a breakdown for each utterance of how many of each unit contributed to that score. For example, with MLU if you see a line like:
-        <img src="/help-mlu-line.png" className="small"></img>
+        <img src={imgRoot + "help-mlu-line.png"} className="small"></img>
         this means there are 7 morphemes in that utterance. The word "playing" is highlighted to indicate it contributes more than one morpheme.
 
         <br></br>
         <br></br>
         At the bottom of each breakdown is the final calculation to produce the score:
-        <img src="/help-mlu-score.png" className="small"></img>
+        <img src={imgRoot + "help-mlu-score.png"} className="small"></img>
 
         You can use these to explicitly see how it got the scores it produced in the table. This allows you to spot check the tool and make sure it is counting the relevant parts of speech correctly. As with all AI tools, it can make mistakes. If it does, please let us know!
         <br></br>
