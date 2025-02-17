@@ -36,7 +36,6 @@ const AboutPage = () => {
             Given a 50-utterance langauge sample from a child collected by a professional SLP, this tool uses Natural Language Processing and Machine Learning to calculate the four SUGAR metrics: <b>Mean Length of Utterance (MLU)</b>, <b>Clauses Per Sentence (CPS)</b>, <b>Words Per Sentence (WPS)</b>, and <b>Total Number of Words (TNW)</b> for that sample. If some or all of a child's scores fall significantly below established averages, it is an indication of language impairment. 
         </p>
         <hr className="w-full my-2 border" />
-        <p className="mb-4">
           This tool was developed and built by by Dr. George D. Torres, a machine learning scientist, in collaboration with Dr. Kristen K. Torres, a professional Speech Language Pathologist.
           <br></br>
           <br></br>
@@ -47,8 +46,8 @@ const AboutPage = () => {
           >
             digitalmetricsfortheslp@gmail.com
           </a>.
-        </p>
-        <p className="mb-4">
+          <br></br>
+          <br></br>
           Visit our{' '}
           <a
             href="https://www.languagesamples.com/home"
@@ -59,9 +58,8 @@ const AboutPage = () => {
             website
           </a>{' '}
           for additional resources.
-        </p>
         <hr className="w-full my-2 border" />
-        <b>Disclaimer:</b> Please be sure to credit the SUGAR authors, Dr. Robert Owens and Dr. Stacey Pavelko, when using the SUGAR methodology.
+        <b>Disclaimer:</b> This tool can make mistakes. Please check the results it produces before using them to make any formal recommendations. Instructions for how to check its analysis can be found by clicking "Help" above.
       </div>
     </div>
   );

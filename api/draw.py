@@ -77,6 +77,7 @@ def draw_bellcurves(scores, age_y, age_m):
 def get_bellcurves(scores, age_y, age_m, file_format="png"):
     draw_bellcurves(scores, age_y, age_m)
     plt.savefig(f"curves.{file_format}", bbox_inches="tight", dpi=900)
+    plt.close()
     if file_format == "svg":
         asset_str = open("curves.svg", "r").read()
     if file_format == "png":

@@ -33,6 +33,30 @@ a:hover {
   color: #535bf2;
 }
 
+p
+{
+  text-indent: 2em;
+}
+
+img {
+  margin-top: 10px;
+  margin-bottom: 10px;
+  border-radius: 10px;
+  border: 2px solid #000000;
+}
+
+img.small {
+  height: 50%;
+  width: 50%;
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+  border: 1px solid #000000;
+  margin-bottom: 5px;
+  border-radius: 5px;
+}
+
+
 body {
   margin: 0;
   display: flex;

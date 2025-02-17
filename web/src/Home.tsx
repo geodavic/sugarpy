@@ -52,6 +52,9 @@ const LanguageAnalyticsApp = () => {
   const [exportTableLoading, setExportTableLoading] = useState(false);
   const [exportPlotsLoading, setExportPlotsLoading] = useState(false);
 
+  // Calculate the number of utterances (non-empty lines)
+  const utteranceCount = inputText.split('\n').filter(line => line.trim() !== '').length;
+
   const handleButtonClick = async () => {
     setLoading(true);
     setErrorMessage(''); // Clear any previous error
@@ -326,11 +329,15 @@ const LanguageAnalyticsApp = () => {
       {/* Input Section */}
       <div className="w-full max-w-2xl mb-4">
         <textarea
-          className="w-full h-60 p-4 rounded-md bg-white text-black"
+          className="w-full h-80 p-4 rounded-md bg-white text-black"
           placeholder="Paste your sample here..."
           value={inputText}
           onChange={(e) => setInputText(e.target.value)}
         />
+        {/* Dynamic Newline/Utterance Counter */}
+        <div className="w-full text-right text-md mt-1 text-white">
+          {utteranceCount} utterance{utteranceCount === 1 ? '' : 's'}
+        </div>
         {/* Dropdowns for Age and Calculate Metrics button */}
         <div className="flex justify-center items-center mt-4 space-x-4">
           <div className="flex items-center space-x-1">
