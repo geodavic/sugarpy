@@ -49,6 +49,8 @@ const LanguageAnalyticsApp = () => {
   const [modalImage, setModalImage] = useState('');
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [tabsOpen, setTabsOpen] = useState(false);
+  const [exportTableLoading, setExportTableLoading] = useState(false);
+  const [exportPlotsLoading, setExportPlotsLoading] = useState(false);
 
   const handleButtonClick = async () => {
     setLoading(true);
@@ -171,6 +173,106 @@ const LanguageAnalyticsApp = () => {
     }
   };
 
+  const handleExportTable = async () => {
+    const availableResults = Object.values(results).some(result => result.score !== null);
+    if (!availableResults) {
+      alert("No results available to export.");
+      return;
+    }
+    setExportTableLoading(true);
+    try {
+      const payload = {
+        type: 'metric_table',
+        response_format: 'png',
+        age: { years: ageYears, months: ageMonths },
+        scores: {
+          tnw: results.tnw.score,
+          cps: results.cps.score,
+          wps: results.wps.score,
+          mlu: results.mlu.score
+        }
+      };
+
+      const response = await fetch(apiUrl + '/v2/assets', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'accept': 'application/json'
+        },
+        body: JSON.stringify(payload)
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.detail || errorData.message || 'Error fetching metrics_table asset');
+      }
+
+      const data = await response.json();
+      const dataUrl = `data:image/png;base64,${data.asset}`;
+      const link = document.createElement('a');
+      link.href = dataUrl;
+      link.download = 'metrics_table.png';
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    } catch (error: any) {
+      console.error("Error exporting table:", error);
+      alert("Error exporting table: " + error.toString());
+    } finally {
+      setExportTableLoading(false);
+    }
+  };
+
+  const handleExportPlots = async () => {
+    const availableResults = Object.values(results).some(result => result.score !== null);
+    if (!availableResults) {
+      alert("No results available to export.");
+      return;
+    }
+    setExportPlotsLoading(true);
+    try {
+      const payload = {
+        type: 'bell_curve',
+        response_format: 'png',
+        age: { years: ageYears, months: ageMonths },
+        scores: {
+          tnw: results.tnw.score,
+          cps: results.cps.score,
+          wps: results.wps.score,
+          mlu: results.mlu.score
+        }
+      };
+
+      const response = await fetch(apiUrl + '/v2/assets', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'accept': 'application/json'
+        },
+        body: JSON.stringify(payload)
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.detail || errorData.message || 'Error fetching bell_curve asset');
+      }
+
+      const data = await response.json();
+      const dataUrl = `data:image/png;base64,${data.asset}`;
+      const link = document.createElement('a');
+      link.href = dataUrl;
+      link.download = 'bell_curve.png';
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    } catch (error: any) {
+      console.error("Error exporting plots:", error);
+      alert("Error exporting plots: " + error.toString());
+    } finally {
+      setExportPlotsLoading(false);
+    }
+  };
+
   const openModal = (imageUrl: string) => {
     setModalImage(imageUrl);
     setIsModalOpen(true);
@@ -240,7 +342,7 @@ const LanguageAnalyticsApp = () => {
               className="p-1 rounded white-bg text-black"
             >
               {[...Array(11-3).keys()].map((num) => (
-                <option key={num+3} value={num+3}>{num+3}</option>
+                <option key={num + 3} value={num + 3}>{num + 3}</option>
               ))}
             </select>
           </div>
@@ -262,7 +364,6 @@ const LanguageAnalyticsApp = () => {
             disabled={loading}
             className="flex items-center analytics-button white-bg justify-center relative min-w-[150px] py-2"
           >
-            {/* Reserve the space with the text, but hide it when loading */}
             <span className={loading ? "opacity-0" : "opacity-100"}>
               Calculate Metrics
             </span>
@@ -310,12 +411,16 @@ const LanguageAnalyticsApp = () => {
                         {result.score === null || !result.imageUrl ? (
                           '-'
                         ) : (
-                          <button
-                            onClick={() => openModal(result.imageUrl)}
-                            className="white-bg text-sm p-1"
+                          <a
+                            href="#"
+                            onClick={(e) => {
+                              e.preventDefault();
+                              openModal(result.imageUrl);
+                            }}
+                            className="text-sm text-blue-300 hover:underline"
                           >
                             View Image
-                          </button>
+                          </a>
                         )}
                       </td>
                     </tr>
@@ -323,6 +428,38 @@ const LanguageAnalyticsApp = () => {
                 })}
               </tbody>
             </table>
+          </div>
+
+          {/* Export Buttons as clickable divs (sibling to Show Details) */}
+          <div className="w-full max-w-2xl mt-4 flex justify-center space-x-4">
+            <div
+              onClick={() => { if (!exportTableLoading) handleExportTable(); }}
+              className="results-container cursor-pointer p-2 text-white text-center relative"
+              style={{ flex: 'none', width: 'calc(50% - 8px)' }}
+            >
+              <span className={exportTableLoading ? "opacity-0" : "opacity-100"}>
+                Export table
+              </span>
+              {exportTableLoading && (
+                <span className="absolute inset-0 flex items-center justify-center">
+                  <Spinner />
+                </span>
+              )}
+            </div>
+            <div
+              onClick={() => { if (!exportPlotsLoading) handleExportPlots(); }}
+              className="results-container cursor-pointer p-2 text-white text-center relative"
+              style={{ flex: 'none', width: 'calc(50% - 8px)' }}
+            >
+              <span className={exportPlotsLoading ? "opacity-0" : "opacity-100"}>
+                Export plots
+              </span>
+              {exportPlotsLoading && (
+                <span className="absolute inset-0 flex items-center justify-center">
+                  <Spinner />
+                </span>
+              )}
+            </div>
           </div>
 
           {/* Toggle Detailed Analysis */}
