@@ -1,5 +1,5 @@
 from pydantic import BaseModel, model_validator
-from typing import Optional, List, Dict
+from typing import Optional, List, Dict, Union
 from sugarpy.norms import MIN_AGE, MAX_AGE
 from sugarpy import MetricName
 from enum import Enum
@@ -87,7 +87,7 @@ class AssetRequest(BaseModel):
     type: AssetType
     response_format: AssetResponseFormat
     age: Age
-    scores: Dict[MetricName, float]
+    scores: Dict[MetricName, Union[float, None]]
 
 
 class AssetResponse(BaseModel):

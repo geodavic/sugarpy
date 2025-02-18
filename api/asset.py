@@ -10,23 +10,30 @@ from draw import get_bellcurves, metric_to_formatted_score
 
 
 def get_asset_from_request(request: AssetRequest):
-    scores = {k: v for k, v in request.scores.items() if v is not None and v < np.inf}
     if request.type == AssetType.BELL_CURVE:
         return get_bellcurves(
-            scores,
+            request.scores,
             request.age.years,
             request.age.months,
             file_format=request.response_format,
         )
     elif request.type == AssetType.METRIC_TABLE:
         return get_metric_table(
-            scores,
+            request.scores,
             request.age.years,
             request.age.months,
             file_format=request.response_format,
         )
     else:
         raise ValueError("Unrecognized asset type")
+
+
+def _is_within_norms_str(score, age_y, age_m, metric, num_sd):
+    if score is None:
+        return "N/A"
+    if is_within_norms(score, age_y, age_m, metric, num_sd=num_sd):
+        return "Yes"
+    return "No"
 
 
 def get_metric_table(scores, age_y, age_m, file_format="png"):
@@ -44,12 +51,8 @@ def get_metric_table(scores, age_y, age_m, file_format="png"):
     for metric in scores:
         score = scores[metric]
         score_str = metric_to_formatted_score(metric, score)
-        one_sdnorm = (
-            "Yes" if is_within_norms(score, age_y, age_m, metric, num_sd=1) else "No"
-        )
-        two_sdnorm = (
-            "Yes" if is_within_norms(score, age_y, age_m, metric, num_sd=2) else "No"
-        )
+        one_sdnorm = _is_within_norms_str(score, age_y, age_m, metric, num_sd=1)
+        two_sdnorm = _is_within_norms_str(score, age_y, age_m, metric, num_sd=2)
         mean = get_norms(age_y, age_m, metric)["mean_score"]
         values.append([metric.upper(), score_str, mean, one_sdnorm, two_sdnorm])
 

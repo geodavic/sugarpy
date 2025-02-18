@@ -9,6 +9,8 @@ from io import BytesIO
 
 
 def metric_to_formatted_score(metric, score):
+    if score is None:
+        return "N/A"
     if metric == "mlu":
         return f"{score:.2f}"
     if metric == "cps":
@@ -36,7 +38,8 @@ def _draw_bellcurve(figure, axis, score, age_y, age_m, metric):
     axis.tick_params(left=False, labelleft=False)
     ticks = [mean - 2 * sd, mean - sd, mean]
     axis.set_xticks(ticks, labels=_create_labels(ticks))
-    axis.axvline(x=score, color="r")
+    if score is not None:
+        axis.axvline(x=score, color="r")
     axis.title.set_text(title)
     [s.set_visible(False) for s in axis.spines.values()]
 
