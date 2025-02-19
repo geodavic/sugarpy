@@ -16,7 +16,7 @@ WORKDIR /app
 RUN python3 -m pip install .
 
 # Install API requirements
-RUN python3 -m pip install api_requirements.txt
+RUN python3 -m pip install -r api_requirements.txt
 
 # download spacy model
 RUN python3 -m spacy download en_core_web_lg
