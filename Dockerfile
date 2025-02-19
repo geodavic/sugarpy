@@ -13,7 +13,7 @@ COPY . /app/
 WORKDIR /app
 
 # Install sugarpy
-RUN python3 -m pip install .
+RUN poetry install 
 
 # Install API requirements
 RUN python3 -m pip install api_requirements.txt
