@@ -1,0 +1,18 @@
+sentences subj fix
+
+Eventually: determine license, put on repo and openapi
+
+-- api / lib
+
+explore LLM plugins, esp. for clauses and morphemes.
+make README good and nice
+publish to pypi
+tests
+
+-- web
+
+mom comments
+    - num sd. option in table div. one for each row.
+
+MAYBE: ability to change scores in table? 
+add link for "see an error?"

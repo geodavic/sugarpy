@@ -1,5 +1,8 @@
+![sugarpy][img/logo.png]
+
 # sugarpy
-SUGAR metrics in python
+
+A library, API and web app for using NLP to compute SUGAR metrics.
 
 # Web
 
