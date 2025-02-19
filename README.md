@@ -1,4 +1,4 @@
-![sugarpy][img/logo.png]
+![sugarpy](img/logo.png)
 
 # sugarpy
 
