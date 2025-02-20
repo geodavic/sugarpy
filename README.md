@@ -70,3 +70,5 @@ metrics = get_metrics(language_samples, model="en_core_web_trf")
 You will need to ensure that any model you pass has already been installed on your machine.
 
 ## License
+
+This project is licensed under the MIT license. Please see [LICENSE](./LICENSE) for details.
