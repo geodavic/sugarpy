@@ -8,6 +8,11 @@ from sugarpy import is_within_norms, get_norms
 from model import AssetRequest, AssetType
 from draw import get_bellcurves, metric_to_formatted_score
 
+GREEN = "#20af2c"
+YELLOW = "#FFDE21"
+RED = "#ff2d5d"
+WHITE = "white"
+LIGHTGREY = "lightgrey"
 
 def get_asset_from_request(request: AssetRequest):
     if request.type == AssetType.BELL_CURVE:
@@ -28,12 +33,16 @@ def get_asset_from_request(request: AssetRequest):
         raise ValueError("Unrecognized asset type")
 
 
-def _is_within_norms_str(score, age_y, age_m, metric, num_sd):
+def _results_str_and_color(score, age_y, age_m, metric):
     if score is None:
-        return "N/A"
-    if is_within_norms(score, age_y, age_m, metric, num_sd=num_sd):
-        return "Yes"
-    return "No"
+        return "N/A", WHITE
+    norm1 = is_within_norms(score, age_y, age_m, metric, num_sd=1)
+    norm2 = is_within_norms(score, age_y, age_m, metric, num_sd=2)
+    if norm1:
+        return "Within normal range", GREEN
+    if norm2:
+        return "Below average", YELLOW
+    return "Delayed", RED
 
 
 def get_metric_table(scores, age_y, age_m, file_format="png"):
@@ -44,27 +53,27 @@ def get_metric_table(scores, age_y, age_m, file_format="png"):
         "Metric",
         "Score",
         "Mean",
-        "Within guidelines (1\u03c3)",
-        "Within guidelines (2\u03c3)",
+        "Result",
     ]
     values = []
+    result_colors = []
     for metric in scores:
         score = scores[metric]
         score_str = metric_to_formatted_score(metric, score)
-        one_sdnorm = _is_within_norms_str(score, age_y, age_m, metric, num_sd=1)
-        two_sdnorm = _is_within_norms_str(score, age_y, age_m, metric, num_sd=2)
+        results_str, color = _results_str_and_color(score, age_y, age_m, metric)
         mean = get_norms(age_y, age_m, metric)["mean_score"]
-        values.append([metric.upper(), score_str, mean, one_sdnorm, two_sdnorm])
+        values.append([metric.upper(), score_str, mean, results_str])
+        result_colors.append(color)
 
     values = list(map(list, zip(*values)))  # transpose
     fig = go.Figure(
         data=[
             go.Table(
-                columnwidth=[10, 10, 10, 25, 25],
+                columnwidth=[10, 10, 10, 12],
                 header=dict(values=headers, align="center"),
                 cells=dict(
                     values=values,
-                    fill_color=[["white", "lightgrey"] * len(values)],
+                    fill=dict(color=[WHITE, WHITE, WHITE, result_colors]),
                     align="center",
                 ),
             )

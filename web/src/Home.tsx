@@ -8,7 +8,7 @@ interface MetricResultWithDetails {
   score: number | null;
   processedText: string;
   imageUrl: string;
-  meetsCriteria: boolean;
+  result: string;
   numerator: number | null;
   denominator: number | null;
 }
@@ -17,7 +17,7 @@ interface TnwResult {
   score: number | null;
   processedText: string;
   imageUrl: string;
-  meetsCriteria: boolean;
+  result: string;
 }
 
 export interface MetricsResults {
@@ -41,6 +41,9 @@ const Spinner = () => (
 );
 
 const apiUrl = import.meta.env.VITE_SUGARPY_BASE_URL || 'http://0.0.0.0:5000';
+const normalRange = "Within normal range"
+const belowAverage = "Below average"
+const delayed = "Delayed"
 
 const LanguageAnalyticsApp = ({
   inputText,
@@ -54,10 +57,10 @@ const LanguageAnalyticsApp = ({
   const [loading, setLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
   const [results, setResults] = useState<MetricsResults>({
-    mlu: { score: null, processedText: '', imageUrl: '', meetsCriteria: false, numerator: null, denominator: null },
-    wps: { score: null, processedText: '', imageUrl: '', meetsCriteria: false, numerator: null, denominator: null },
-    cps: { score: null, processedText: '', imageUrl: '', meetsCriteria: false, numerator: null, denominator: null },
-    tnw: { score: null, processedText: '', imageUrl: '', meetsCriteria: false }
+    mlu: { score: null, processedText: '', imageUrl: '', results: false, numerator: null, denominator: null },
+    wps: { score: null, processedText: '', imageUrl: '', results: false, numerator: null, denominator: null },
+    cps: { score: null, processedText: '', imageUrl: '', results: false, numerator: null, denominator: null },
+    tnw: { score: null, processedText: '', imageUrl: '', results: false }
   });
   const [activeTab, setActiveTab] = useState<DetailedMetric>('mlu');
   const [modalImage, setModalImage] = useState('');
@@ -142,9 +145,7 @@ const LanguageAnalyticsApp = ({
           score: webMetricsData.mlu.score,
           processedText: webMetricsData.mlu.processed_text,
           imageUrl: assetsResponses[0].asset,
-          meetsCriteria:
-            webMetricsData.mlu.score !== null &&
-            webMetricsData.mlu.score > (normsResponses[0].mean_score - 2 * normsResponses[0].standard_deviation),
+          results: webMetricsData.mlu.score > (normsResponses[0].mean_score - normsResponses[0].standard_deviation) ? normalRange : webMetricsData.mlu.score > (normsResponses[0].mean_score - 2 * normsResponses[0].standard_deviation) ? belowAverage : delayed,
           numerator: webMetricsData.mlu.numerator,
           denominator: webMetricsData.mlu.denominator
         },
@@ -152,9 +153,7 @@ const LanguageAnalyticsApp = ({
           score: webMetricsData.wps.score,
           processedText: webMetricsData.wps.processed_text,
           imageUrl: assetsResponses[1].asset,
-          meetsCriteria:
-            webMetricsData.wps.score !== null &&
-            webMetricsData.wps.score > (normsResponses[1].mean_score - 2 * normsResponses[1].standard_deviation),
+          results: webMetricsData.wps.score > (normsResponses[1].mean_score - normsResponses[1].standard_deviation) ? normalRange : webMetricsData.wps.score > (normsResponses[1].mean_score - 2 * normsResponses[1].standard_deviation) ? belowAverage : delayed,
           numerator: webMetricsData.wps.numerator,
           denominator: webMetricsData.wps.denominator
         },
@@ -162,9 +161,7 @@ const LanguageAnalyticsApp = ({
           score: webMetricsData.cps.score,
           processedText: webMetricsData.cps.processed_text,
           imageUrl: assetsResponses[2].asset,
-          meetsCriteria:
-            webMetricsData.cps.score !== null &&
-            webMetricsData.cps.score > (normsResponses[2].mean_score - 2 * normsResponses[2].standard_deviation),
+          results: webMetricsData.cps.score > (normsResponses[2].mean_score - normsResponses[2].standard_deviation) ? normalRange : webMetricsData.cps.score > (normsResponses[2].mean_score - 2 * normsResponses[2].standard_deviation) ? belowAverage : delayed,
           numerator: webMetricsData.cps.numerator,
           denominator: webMetricsData.cps.denominator
         },
@@ -172,9 +169,7 @@ const LanguageAnalyticsApp = ({
           score: webMetricsData.tnw.score,
           processedText: webMetricsData.tnw.processed_text,
           imageUrl: assetsResponses[3].asset,
-          meetsCriteria:
-            webMetricsData.tnw.score !== null &&
-            webMetricsData.tnw.score > (normsResponses[3].mean_score - 2 * normsResponses[3].standard_deviation)
+          results: webMetricsData.tnw.score > (normsResponses[3].mean_score - normsResponses[3].standard_deviation) ? normalRange : webMetricsData.tnw.score > (normsResponses[3].mean_score - 2 * normsResponses[3].standard_deviation) ? belowAverage : delayed,
         }
       });
     } catch (error: any) {
@@ -404,7 +399,7 @@ const LanguageAnalyticsApp = ({
                 <tr>
                   <th className="border-b-2 border-[#6A4952] p-2 text-center">Metric</th>
                   <th className="border-b-2 border-[#6A4952] p-2 text-center">Score</th>
-                  <th className="border-b-2 border-[#6A4952] p-2 text-center">Within Guidelines</th>
+                  <th className="border-b-2 border-[#6A4952] p-2 text-center">Result</th>
                   <th className="border-b-2 border-[#6A4952] p-2 text-center">Bell Curve</th>
                 </tr>
               </thead>
@@ -418,7 +413,7 @@ const LanguageAnalyticsApp = ({
                         {result.score !== null ? (metric === 'tnw' ? result.score : result.score.toFixed(2)) : 'N/A'}
                       </td>
                       <td className="p-2 text-center">
-                        {result.score === null ? 'N/A' : (result.meetsCriteria ? 'Yes' : 'No')}
+                        {result.score === null ? 'N/A' : result.results}
                       </td>
                       <td className="p-2 text-center">
                         {result.score === null || !result.imageUrl ? (
