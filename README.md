@@ -59,7 +59,7 @@ All of this data is taken directly from the SUGAR language [website](https://www
 
 ## Configuration
 
-The library is configured to use the spacy model `en_core_web_lg` by default. This is a token classification CPU-performant token classification model. You can substitute a different spacy model, such as a transformer-based one like `en_core_web_trf`, by passing `model=<your_model_name>` to the `get_metrics` function:
+The library is configured to use the spacy model `en_core_web_lg` by default. This is a CPU-performant token classification model. You can substitute a different spacy model, such as a transformer-based one like `en_core_web_trf`, by passing `model=<your_model_name>` to the `get_metrics` function:
 ```python
 from sugarpy import get_metrics
 
