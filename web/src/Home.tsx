@@ -57,10 +57,10 @@ const LanguageAnalyticsApp = ({
   const [loading, setLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
   const [results, setResults] = useState<MetricsResults>({
-    mlu: { score: null, processedText: '', imageUrl: '', results: false, numerator: null, denominator: null },
-    wps: { score: null, processedText: '', imageUrl: '', results: false, numerator: null, denominator: null },
-    cps: { score: null, processedText: '', imageUrl: '', results: false, numerator: null, denominator: null },
-    tnw: { score: null, processedText: '', imageUrl: '', results: false }
+    mlu: { score: null, processedText: '', imageUrl: '', result: '', numerator: null, denominator: null },
+    wps: { score: null, processedText: '', imageUrl: '', result: '', numerator: null, denominator: null },
+    cps: { score: null, processedText: '', imageUrl: '', result: '', numerator: null, denominator: null },
+    tnw: { score: null, processedText: '', imageUrl: '', result: '' }
   });
   const [activeTab, setActiveTab] = useState<DetailedMetric>('mlu');
   const [modalImage, setModalImage] = useState('');
@@ -145,7 +145,7 @@ const LanguageAnalyticsApp = ({
           score: webMetricsData.mlu.score,
           processedText: webMetricsData.mlu.processed_text,
           imageUrl: assetsResponses[0].asset,
-          results: webMetricsData.mlu.score > (normsResponses[0].mean_score - normsResponses[0].standard_deviation) ? normalRange : webMetricsData.mlu.score > (normsResponses[0].mean_score - 2 * normsResponses[0].standard_deviation) ? belowAverage : delayed,
+          result: webMetricsData.mlu.score > (normsResponses[0].mean_score - normsResponses[0].standard_deviation) ? normalRange : webMetricsData.mlu.score > (normsResponses[0].mean_score - 2 * normsResponses[0].standard_deviation) ? belowAverage : delayed,
           numerator: webMetricsData.mlu.numerator,
           denominator: webMetricsData.mlu.denominator
         },
@@ -153,7 +153,7 @@ const LanguageAnalyticsApp = ({
           score: webMetricsData.wps.score,
           processedText: webMetricsData.wps.processed_text,
           imageUrl: assetsResponses[1].asset,
-          results: webMetricsData.wps.score > (normsResponses[1].mean_score - normsResponses[1].standard_deviation) ? normalRange : webMetricsData.wps.score > (normsResponses[1].mean_score - 2 * normsResponses[1].standard_deviation) ? belowAverage : delayed,
+          result: webMetricsData.wps.score > (normsResponses[1].mean_score - normsResponses[1].standard_deviation) ? normalRange : webMetricsData.wps.score > (normsResponses[1].mean_score - 2 * normsResponses[1].standard_deviation) ? belowAverage : delayed,
           numerator: webMetricsData.wps.numerator,
           denominator: webMetricsData.wps.denominator
         },
@@ -161,7 +161,7 @@ const LanguageAnalyticsApp = ({
           score: webMetricsData.cps.score,
           processedText: webMetricsData.cps.processed_text,
           imageUrl: assetsResponses[2].asset,
-          results: webMetricsData.cps.score > (normsResponses[2].mean_score - normsResponses[2].standard_deviation) ? normalRange : webMetricsData.cps.score > (normsResponses[2].mean_score - 2 * normsResponses[2].standard_deviation) ? belowAverage : delayed,
+          result: webMetricsData.cps.score > (normsResponses[2].mean_score - normsResponses[2].standard_deviation) ? normalRange : webMetricsData.cps.score > (normsResponses[2].mean_score - 2 * normsResponses[2].standard_deviation) ? belowAverage : delayed,
           numerator: webMetricsData.cps.numerator,
           denominator: webMetricsData.cps.denominator
         },
@@ -169,7 +169,7 @@ const LanguageAnalyticsApp = ({
           score: webMetricsData.tnw.score,
           processedText: webMetricsData.tnw.processed_text,
           imageUrl: assetsResponses[3].asset,
-          results: webMetricsData.tnw.score > (normsResponses[3].mean_score - normsResponses[3].standard_deviation) ? normalRange : webMetricsData.tnw.score > (normsResponses[3].mean_score - 2 * normsResponses[3].standard_deviation) ? belowAverage : delayed,
+          result: webMetricsData.tnw.score > (normsResponses[3].mean_score - normsResponses[3].standard_deviation) ? normalRange : webMetricsData.tnw.score > (normsResponses[3].mean_score - 2 * normsResponses[3].standard_deviation) ? belowAverage : delayed,
         }
       });
     } catch (error: any) {
@@ -413,7 +413,7 @@ const LanguageAnalyticsApp = ({
                         {result.score !== null ? (metric === 'tnw' ? result.score : result.score.toFixed(2)) : 'N/A'}
                       </td>
                       <td className="p-2 text-center">
-                        {result.score === null ? 'N/A' : result.results}
+                        {result.score === null ? 'N/A' : result.result}
                       </td>
                       <td className="p-2 text-center">
                         {result.score === null || !result.imageUrl ? (
