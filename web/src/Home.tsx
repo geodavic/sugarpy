@@ -20,11 +20,20 @@ interface TnwResult {
   meetsCriteria: boolean;
 }
 
-interface MetricsResults {
+export interface MetricsResults {
   mlu: MetricResultWithDetails;
   wps: MetricResultWithDetails;
   cps: MetricResultWithDetails;
   tnw: TnwResult;
+}
+
+interface HomeProps {
+  inputText: string;
+  setInputText: React.Dispatch<React.SetStateAction<string>>;
+  ageYears: number;
+  setAgeYears: React.Dispatch<React.SetStateAction<number>>;
+  ageMonths: number;
+  setAgeMonths: React.Dispatch<React.SetStateAction<number>>;
 }
 
 const Spinner = () => (
@@ -33,10 +42,15 @@ const Spinner = () => (
 
 const apiUrl = import.meta.env.VITE_SUGARPY_BASE_URL || 'http://0.0.0.0:5000';
 
-const LanguageAnalyticsApp = () => {
-  const [inputText, setInputText] = useState('');
-  const [ageYears, setAgeYears] = useState(4);
-  const [ageMonths, setAgeMonths] = useState(0);
+const LanguageAnalyticsApp = ({
+  inputText,
+  setInputText,
+  ageYears,
+  setAgeYears,
+  ageMonths,
+  setAgeMonths
+}: HomeProps) => {
+  // Local state for API call and UI (results, loading, errors, etc.)
   const [loading, setLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
   const [results, setResults] = useState<MetricsResults>({
@@ -60,7 +74,6 @@ const LanguageAnalyticsApp = () => {
     setErrorMessage(''); // Clear any previous error
 
     try {
-      // Call the web-metrics endpoint with the text sample and age parameters
       const webMetricsResponse = await fetch(apiUrl + "/v2/web-metrics", {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -84,10 +97,8 @@ const LanguageAnalyticsApp = () => {
 
       const webMetricsData = await webMetricsResponse.json();
 
-      // List of metrics for which norms and assets must be fetched
       const metrics = ['mlu', 'wps', 'cps', 'tnw'];
 
-      // Fetch norms for each metric in parallel
       const normsResponses = await Promise.all(
         metrics.map(metric =>
           fetch(apiUrl + "/v2/norms", {
@@ -103,7 +114,6 @@ const LanguageAnalyticsApp = () => {
         )
       );
 
-      // Fetch the image assets for each metric from the new /v2/assets endpoint
       const assetsResponses = await Promise.all(
         metrics.map(metric =>
           fetch(apiUrl + "/v2/assets", {
@@ -127,7 +137,6 @@ const LanguageAnalyticsApp = () => {
         )
       );
 
-      // Update state with new results including the assets from /v2/assets
       setResults({
         mlu: {
           score: webMetricsData.mlu.score,
@@ -334,11 +343,9 @@ const LanguageAnalyticsApp = () => {
           value={inputText}
           onChange={(e) => setInputText(e.target.value)}
         />
-        {/* Dynamic Newline/Utterance Counter */}
         <div className="w-full text-right text-md mt-1 text-white">
           {utteranceCount} utterance{utteranceCount === 1 ? '' : 's'}
         </div>
-        {/* Dropdowns for Age and Calculate Metrics button */}
         <div className="flex justify-center items-center mt-4 space-x-4">
           <div className="flex items-center space-x-1">
             <label className="text-white" htmlFor="ageYears">Age (years):</label>
@@ -381,7 +388,6 @@ const LanguageAnalyticsApp = () => {
             )}
           </button>
         </div>
-        {/* Detailed Error Message */}
         {errorMessage && (
           <div className="bg-red-500 text-white p-2 rounded mt-4">
             {errorMessage}
@@ -437,7 +443,7 @@ const LanguageAnalyticsApp = () => {
             </table>
           </div>
 
-          {/* Export Buttons as clickable divs (sibling to Show Details) */}
+          {/* Export Buttons */}
           <div className="w-full max-w-2xl mt-4 flex justify-center space-x-4">
             <div
               onClick={() => { if (!exportTableLoading) handleExportTable(); }}
