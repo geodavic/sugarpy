@@ -570,7 +570,7 @@ const LanguageAnalyticsApp = ({
           rel="noopener noreferrer"
           className="text-sm text-blue-300 hover:underline"
         >
-          langaugesamples.com
+          languagesamples.com
         </a>
       </div>
     </div>
