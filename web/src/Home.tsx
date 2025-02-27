@@ -1,8 +1,7 @@
-import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import './index.css';
 
-type DetailedMetric = 'mlu' | 'wps' | 'cps';
+export type DetailedMetric = 'mlu' | 'wps' | 'cps';
 
 interface MetricResultWithDetails {
   score: number | null;
@@ -34,6 +33,24 @@ interface HomeProps {
   setAgeYears: React.Dispatch<React.SetStateAction<number>>;
   ageMonths: number;
   setAgeMonths: React.Dispatch<React.SetStateAction<number>>;
+  loading: boolean;
+  setLoading: React.Dispatch<React.SetStateAction<boolean>>;
+  errorMessage: string;
+  setErrorMessage: React.Dispatch<React.SetStateAction<string>>;
+  results: MetricsResults;
+  setResults: React.Dispatch<React.SetStateAction<MetricsResults>>;
+  activeTab: DetailedMetric;
+  setActiveTab: React.Dispatch<React.SetStateAction<DetailedMetric>>;
+  modalImage: string;
+  setModalImage: React.Dispatch<React.SetStateAction<string>>;
+  isModalOpen: boolean;
+  setIsModalOpen: React.Dispatch<React.SetStateAction<boolean>>;
+  tabsOpen: boolean;
+  setTabsOpen: React.Dispatch<React.SetStateAction<boolean>>;
+  exportTableLoading: boolean;
+  setExportTableLoading: React.Dispatch<React.SetStateAction<boolean>>;
+  exportPlotsLoading: boolean;
+  setExportPlotsLoading: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
 const Spinner = () => (
@@ -51,23 +68,26 @@ const LanguageAnalyticsApp = ({
   ageYears,
   setAgeYears,
   ageMonths,
-  setAgeMonths
+  setAgeMonths,
+  loading,
+  setLoading,
+  errorMessage,
+  setErrorMessage,
+  results,
+  setResults,
+  activeTab,
+  setActiveTab,
+  modalImage,
+  setModalImage,
+  isModalOpen,
+  setIsModalOpen,
+  tabsOpen,
+  setTabsOpen,
+  exportTableLoading,
+  setExportTableLoading,
+  exportPlotsLoading,
+  setExportPlotsLoading
 }: HomeProps) => {
-  // Local state for API call and UI (results, loading, errors, etc.)
-  const [loading, setLoading] = useState(false);
-  const [errorMessage, setErrorMessage] = useState('');
-  const [results, setResults] = useState<MetricsResults>({
-    mlu: { score: null, processedText: '', imageUrl: '', result: '', numerator: null, denominator: null },
-    wps: { score: null, processedText: '', imageUrl: '', result: '', numerator: null, denominator: null },
-    cps: { score: null, processedText: '', imageUrl: '', result: '', numerator: null, denominator: null },
-    tnw: { score: null, processedText: '', imageUrl: '', result: '' }
-  });
-  const [activeTab, setActiveTab] = useState<DetailedMetric>('mlu');
-  const [modalImage, setModalImage] = useState('');
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [tabsOpen, setTabsOpen] = useState(false);
-  const [exportTableLoading, setExportTableLoading] = useState(false);
-  const [exportPlotsLoading, setExportPlotsLoading] = useState(false);
 
   // Calculate the number of utterances (non-empty lines)
   const utteranceCount = inputText.split('\n').filter(line => line.trim() !== '').length;
@@ -533,6 +553,26 @@ const LanguageAnalyticsApp = ({
           </div>
         </div>
       )}
+
+      {/* External Links */}
+      <div className="w-full flex justify-center space-x-6 mt-8 mb-4">
+        <a 
+          href="https://sugarlanguage.org" 
+          target="_blank" 
+          rel="noopener noreferrer"
+          className="text-sm text-blue-300 hover:underline"
+        >
+          Official SUGAR website
+        </a>
+        <a 
+          href="https://languagesamples.com" 
+          target="_blank" 
+          rel="noopener noreferrer"
+          className="text-sm text-blue-300 hover:underline"
+        >
+          langaugesamples.com
+        </a>
+      </div>
     </div>
   );
 };
