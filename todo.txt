@@ -5,14 +5,16 @@ Eventually: determine license, put on repo and openapi
 -- api / lib
 
 explore LLM plugins, esp. for clauses and morphemes.
-make README good and nice
 publish to pypi
 tests
 
 -- web
 
-mom comments
-    - num sd. option in table div. one for each row.
 
-MAYBE: ability to change scores in table? 
+
+mom comments
+    - problem: tnw is relative to number of samples. Should make tnw = n/a if less than 50 samples? 
+    - "website" -> "languagesamples.com"
+    - alt text for sugar link: official sugar site
+
 add link for "see an error?"

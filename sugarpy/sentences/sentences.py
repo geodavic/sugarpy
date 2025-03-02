@@ -3,7 +3,7 @@ from spacy.tokens.span import Span
 from typing import Tuple, List
 import re
 import spacy
-import claucy
+import sugarpy.claucy as claucy
 
 
 class SentenceCounter:

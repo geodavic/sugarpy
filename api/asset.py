@@ -20,14 +20,14 @@ def get_asset_from_request(request: AssetRequest):
             request.scores,
             request.age.years,
             request.age.months,
-            file_format=request.response_format,
+            file_format=request.response_format.value,
         )
     elif request.type == AssetType.METRIC_TABLE:
         return get_metric_table(
             request.scores,
             request.age.years,
             request.age.months,
-            file_format=request.response_format,
+            file_format=request.response_format.value,
         )
     else:
         raise ValueError("Unrecognized asset type")
