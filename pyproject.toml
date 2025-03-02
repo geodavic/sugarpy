@@ -5,6 +5,7 @@ description = "SUGAR metrics in python"
 authors = ["George D. Torres"]
 license = "MIT"
 readme = "README.md"
+packages = [{ include = "sugarpy" }]
 
 [tool.poetry.dependencies]
 python = "^3.9"
