@@ -5,7 +5,6 @@ from fastapi.templating import Jinja2Templates
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.exceptions import HTTPException
 
-from sugarpy.integrations.app import html_mlu_response, html_metrics_response
 from sugarpy import get_metrics, MetricName
 from sugarpy.norms import get_norms
 
@@ -68,7 +67,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# TODO remove the frontend stuff
+# TODO remove the frontend stuff eventually
 app.mount("/static", StaticFiles(directory="static", html=True), name="static")
 templates = Jinja2Templates(directory="static")
 
