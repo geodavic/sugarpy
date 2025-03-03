@@ -1,28 +1,26 @@
-from python:3.9
+from python:3.11
 
 RUN apt-get update
-
-RUN apt-get -y install python3-dev
 
 RUN python3 -m pip install poetry
 
 RUN mkdir /app
 
-COPY . /app/
+COPY ./ /app
 
 WORKDIR /app
 
 # Install sugarpy
-RUN poetry install 
+RUN python3 -m poetry install 
 
 # Install API requirements
-RUN python3 -m pip install -r api_requirements.txt
+RUN poetry run python3 -m pip install -r api_requirements.txt
 
 # download spacy model
-RUN python3 -m spacy download en_core_web_lg
+RUN poetry run python3 -m spacy download en_core_web_lg
 
 EXPOSE 5000
 
 ENV PORT=5000
 
-CMD ["python3","api/main.py"]
+CMD ["poetry","run","python3","api/main.py"]
