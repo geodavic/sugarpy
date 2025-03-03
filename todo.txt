@@ -2,6 +2,13 @@ sentences subj fix
 
 Eventually: determine license, put on repo and openapi
 
+? Set up Tag regex for api, tag regex for web, tag regex for pkg. Different pipeline for each.
+
+Bump version in release PR then merge
+tag for pkg
+...
+Release
+
 -- api / lib
 
 explore LLM plugins, esp. for clauses and morphemes.
@@ -10,7 +17,7 @@ tests
 
 -- web
 
-
+use shell script to set env var of version -- import that to display on web.
 
 mom comments
     - problem: tnw is relative to number of samples. Should make tnw = n/a if less than 50 samples? 
