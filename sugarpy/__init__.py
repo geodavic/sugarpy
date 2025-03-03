@@ -6,4 +6,4 @@ from .enum import MetricName
 
 import importlib
 
-__version__ = importlib.metadata.version("sugarpy")
+__version__ = importlib.metadata.version("sugar-python")

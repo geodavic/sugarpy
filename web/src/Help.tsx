@@ -51,7 +51,7 @@ const HelpPage = () => {
         When it finishes, it will show the four SUGAR scores in a table like this:
         <img src="/help-table.png"></img>
 
-        Here you can see the individual scores and whether they meet the normative criteria. A score meets the criteria if it is above two standard deviations below the mean. You can see what the means and standard deviations are across age groups on the SUGAR <a href="https://www.sugarlanguage.org/downloads" target="_blank">downloads</a> page.
+        Here you can see the individual scores and whether they are in the normal range, below average, or delayed. A score is considered <b>normal</b> if it is greater than one standard deviation below the mean; a score is considered <b>below average</b> if it is between one and two standard deviations below the mean; and a score is considered <b>delayed</b> if it is below two standard deviations from the mean. You can see what the means and standard deviations are across age groups on the SUGAR <a href="https://www.sugarlanguage.org/downloads" target="_blank">downloads</a> page.
 
         This table also allows you to visualize the score on a bell curve by clicking "View Image".
         <br></br>

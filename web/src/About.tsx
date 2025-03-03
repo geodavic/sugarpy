@@ -48,14 +48,14 @@ const AboutPage = () => {
           </a>.
           <br></br>
           <br></br>
-          Visit our{' '}
+          Visit our website{' '}
           <a
             href="https://www.languagesamples.com/home"
             className="text-blue-500 hover:underline"
             target="_blank"
             rel="noopener noreferrer"
           >
-            website
+            languagesamples.com 
           </a>{' '}
           for additional resources.
         <hr className="w-full my-2 border" />

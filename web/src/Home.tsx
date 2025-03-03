@@ -1,14 +1,13 @@
-import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import './index.css';
 
-type DetailedMetric = 'mlu' | 'wps' | 'cps';
+export type DetailedMetric = 'mlu' | 'wps' | 'cps';
 
 interface MetricResultWithDetails {
   score: number | null;
   processedText: string;
   imageUrl: string;
-  meetsCriteria: boolean;
+  result: string;
   numerator: number | null;
   denominator: number | null;
 }
@@ -17,14 +16,41 @@ interface TnwResult {
   score: number | null;
   processedText: string;
   imageUrl: string;
-  meetsCriteria: boolean;
+  result: string;
 }
 
-interface MetricsResults {
+export interface MetricsResults {
   mlu: MetricResultWithDetails;
   wps: MetricResultWithDetails;
   cps: MetricResultWithDetails;
   tnw: TnwResult;
+}
+
+interface HomeProps {
+  inputText: string;
+  setInputText: React.Dispatch<React.SetStateAction<string>>;
+  ageYears: number;
+  setAgeYears: React.Dispatch<React.SetStateAction<number>>;
+  ageMonths: number;
+  setAgeMonths: React.Dispatch<React.SetStateAction<number>>;
+  loading: boolean;
+  setLoading: React.Dispatch<React.SetStateAction<boolean>>;
+  errorMessage: string;
+  setErrorMessage: React.Dispatch<React.SetStateAction<string>>;
+  results: MetricsResults;
+  setResults: React.Dispatch<React.SetStateAction<MetricsResults>>;
+  activeTab: DetailedMetric;
+  setActiveTab: React.Dispatch<React.SetStateAction<DetailedMetric>>;
+  modalImage: string;
+  setModalImage: React.Dispatch<React.SetStateAction<string>>;
+  isModalOpen: boolean;
+  setIsModalOpen: React.Dispatch<React.SetStateAction<boolean>>;
+  tabsOpen: boolean;
+  setTabsOpen: React.Dispatch<React.SetStateAction<boolean>>;
+  exportTableLoading: boolean;
+  setExportTableLoading: React.Dispatch<React.SetStateAction<boolean>>;
+  exportPlotsLoading: boolean;
+  setExportPlotsLoading: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
 const Spinner = () => (
@@ -32,25 +58,36 @@ const Spinner = () => (
 );
 
 const apiUrl = import.meta.env.VITE_SUGARPY_BASE_URL || 'http://0.0.0.0:5000';
+const normalRange = "Within normal range"
+const belowAverage = "Below average"
+const delayed = "Delayed"
 
-const LanguageAnalyticsApp = () => {
-  const [inputText, setInputText] = useState('');
-  const [ageYears, setAgeYears] = useState(4);
-  const [ageMonths, setAgeMonths] = useState(0);
-  const [loading, setLoading] = useState(false);
-  const [errorMessage, setErrorMessage] = useState('');
-  const [results, setResults] = useState<MetricsResults>({
-    mlu: { score: null, processedText: '', imageUrl: '', meetsCriteria: false, numerator: null, denominator: null },
-    wps: { score: null, processedText: '', imageUrl: '', meetsCriteria: false, numerator: null, denominator: null },
-    cps: { score: null, processedText: '', imageUrl: '', meetsCriteria: false, numerator: null, denominator: null },
-    tnw: { score: null, processedText: '', imageUrl: '', meetsCriteria: false }
-  });
-  const [activeTab, setActiveTab] = useState<DetailedMetric>('mlu');
-  const [modalImage, setModalImage] = useState('');
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [tabsOpen, setTabsOpen] = useState(false);
-  const [exportTableLoading, setExportTableLoading] = useState(false);
-  const [exportPlotsLoading, setExportPlotsLoading] = useState(false);
+const LanguageAnalyticsApp = ({
+  inputText,
+  setInputText,
+  ageYears,
+  setAgeYears,
+  ageMonths,
+  setAgeMonths,
+  loading,
+  setLoading,
+  errorMessage,
+  setErrorMessage,
+  results,
+  setResults,
+  activeTab,
+  setActiveTab,
+  modalImage,
+  setModalImage,
+  isModalOpen,
+  setIsModalOpen,
+  tabsOpen,
+  setTabsOpen,
+  exportTableLoading,
+  setExportTableLoading,
+  exportPlotsLoading,
+  setExportPlotsLoading
+}: HomeProps) => {
 
   // Calculate the number of utterances (non-empty lines)
   const utteranceCount = inputText.split('\n').filter(line => line.trim() !== '').length;
@@ -60,7 +97,6 @@ const LanguageAnalyticsApp = () => {
     setErrorMessage(''); // Clear any previous error
 
     try {
-      // Call the web-metrics endpoint with the text sample and age parameters
       const webMetricsResponse = await fetch(apiUrl + "/v2/web-metrics", {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -84,10 +120,8 @@ const LanguageAnalyticsApp = () => {
 
       const webMetricsData = await webMetricsResponse.json();
 
-      // List of metrics for which norms and assets must be fetched
       const metrics = ['mlu', 'wps', 'cps', 'tnw'];
 
-      // Fetch norms for each metric in parallel
       const normsResponses = await Promise.all(
         metrics.map(metric =>
           fetch(apiUrl + "/v2/norms", {
@@ -103,7 +137,6 @@ const LanguageAnalyticsApp = () => {
         )
       );
 
-      // Fetch the image assets for each metric from the new /v2/assets endpoint
       const assetsResponses = await Promise.all(
         metrics.map(metric =>
           fetch(apiUrl + "/v2/assets", {
@@ -127,15 +160,12 @@ const LanguageAnalyticsApp = () => {
         )
       );
 
-      // Update state with new results including the assets from /v2/assets
       setResults({
         mlu: {
           score: webMetricsData.mlu.score,
           processedText: webMetricsData.mlu.processed_text,
           imageUrl: assetsResponses[0].asset,
-          meetsCriteria:
-            webMetricsData.mlu.score !== null &&
-            webMetricsData.mlu.score > (normsResponses[0].mean_score - 2 * normsResponses[0].standard_deviation),
+          result: webMetricsData.mlu.score > (normsResponses[0].mean_score - normsResponses[0].standard_deviation) ? normalRange : webMetricsData.mlu.score > (normsResponses[0].mean_score - 2 * normsResponses[0].standard_deviation) ? belowAverage : delayed,
           numerator: webMetricsData.mlu.numerator,
           denominator: webMetricsData.mlu.denominator
         },
@@ -143,9 +173,7 @@ const LanguageAnalyticsApp = () => {
           score: webMetricsData.wps.score,
           processedText: webMetricsData.wps.processed_text,
           imageUrl: assetsResponses[1].asset,
-          meetsCriteria:
-            webMetricsData.wps.score !== null &&
-            webMetricsData.wps.score > (normsResponses[1].mean_score - 2 * normsResponses[1].standard_deviation),
+          result: webMetricsData.wps.score > (normsResponses[1].mean_score - normsResponses[1].standard_deviation) ? normalRange : webMetricsData.wps.score > (normsResponses[1].mean_score - 2 * normsResponses[1].standard_deviation) ? belowAverage : delayed,
           numerator: webMetricsData.wps.numerator,
           denominator: webMetricsData.wps.denominator
         },
@@ -153,9 +181,7 @@ const LanguageAnalyticsApp = () => {
           score: webMetricsData.cps.score,
           processedText: webMetricsData.cps.processed_text,
           imageUrl: assetsResponses[2].asset,
-          meetsCriteria:
-            webMetricsData.cps.score !== null &&
-            webMetricsData.cps.score > (normsResponses[2].mean_score - 2 * normsResponses[2].standard_deviation),
+          result: webMetricsData.cps.score > (normsResponses[2].mean_score - normsResponses[2].standard_deviation) ? normalRange : webMetricsData.cps.score > (normsResponses[2].mean_score - 2 * normsResponses[2].standard_deviation) ? belowAverage : delayed,
           numerator: webMetricsData.cps.numerator,
           denominator: webMetricsData.cps.denominator
         },
@@ -163,9 +189,7 @@ const LanguageAnalyticsApp = () => {
           score: webMetricsData.tnw.score,
           processedText: webMetricsData.tnw.processed_text,
           imageUrl: assetsResponses[3].asset,
-          meetsCriteria:
-            webMetricsData.tnw.score !== null &&
-            webMetricsData.tnw.score > (normsResponses[3].mean_score - 2 * normsResponses[3].standard_deviation)
+          result: webMetricsData.tnw.score > (normsResponses[3].mean_score - normsResponses[3].standard_deviation) ? normalRange : webMetricsData.tnw.score > (normsResponses[3].mean_score - 2 * normsResponses[3].standard_deviation) ? belowAverage : delayed,
         }
       });
     } catch (error: any) {
@@ -334,11 +358,9 @@ const LanguageAnalyticsApp = () => {
           value={inputText}
           onChange={(e) => setInputText(e.target.value)}
         />
-        {/* Dynamic Newline/Utterance Counter */}
         <div className="w-full text-right text-md mt-1 text-white">
           {utteranceCount} utterance{utteranceCount === 1 ? '' : 's'}
         </div>
-        {/* Dropdowns for Age and Calculate Metrics button */}
         <div className="flex justify-center items-center mt-4 space-x-4">
           <div className="flex items-center space-x-1">
             <label className="text-white" htmlFor="ageYears">Age (years):</label>
@@ -381,7 +403,6 @@ const LanguageAnalyticsApp = () => {
             )}
           </button>
         </div>
-        {/* Detailed Error Message */}
         {errorMessage && (
           <div className="bg-red-500 text-white p-2 rounded mt-4">
             {errorMessage}
@@ -398,7 +419,7 @@ const LanguageAnalyticsApp = () => {
                 <tr>
                   <th className="border-b-2 border-[#6A4952] p-2 text-center">Metric</th>
                   <th className="border-b-2 border-[#6A4952] p-2 text-center">Score</th>
-                  <th className="border-b-2 border-[#6A4952] p-2 text-center">Within Guidelines</th>
+                  <th className="border-b-2 border-[#6A4952] p-2 text-center">Result</th>
                   <th className="border-b-2 border-[#6A4952] p-2 text-center">Bell Curve</th>
                 </tr>
               </thead>
@@ -412,7 +433,7 @@ const LanguageAnalyticsApp = () => {
                         {result.score !== null ? (metric === 'tnw' ? result.score : result.score.toFixed(2)) : 'N/A'}
                       </td>
                       <td className="p-2 text-center">
-                        {result.score === null ? 'N/A' : (result.meetsCriteria ? 'Yes' : 'No')}
+                        {result.score === null ? 'N/A' : result.result}
                       </td>
                       <td className="p-2 text-center">
                         {result.score === null || !result.imageUrl ? (
@@ -437,7 +458,7 @@ const LanguageAnalyticsApp = () => {
             </table>
           </div>
 
-          {/* Export Buttons as clickable divs (sibling to Show Details) */}
+          {/* Export Buttons */}
           <div className="w-full max-w-2xl mt-4 flex justify-center space-x-4">
             <div
               onClick={() => { if (!exportTableLoading) handleExportTable(); }}
@@ -532,6 +553,26 @@ const LanguageAnalyticsApp = () => {
           </div>
         </div>
       )}
+
+      {/* External Links */}
+      <div className="w-full flex justify-center space-x-6 mt-8 mb-4">
+        <a 
+          href="https://sugarlanguage.org" 
+          target="_blank" 
+          rel="noopener noreferrer"
+          className="text-sm text-blue-300 hover:underline"
+        >
+          Official SUGAR website
+        </a>
+        <a 
+          href="https://languagesamples.com" 
+          target="_blank" 
+          rel="noopener noreferrer"
+          className="text-sm text-blue-300 hover:underline"
+        >
+          languagesamples.com
+        </a>
+      </div>
     </div>
   );
 };

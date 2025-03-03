@@ -1,6 +1,8 @@
 todo.txt
 **__pycache__/
 web/node_modules/*
+web/dist/*
 *.swp
 .DS_STORE
 *.svg
+dist/
