@@ -10,7 +10,7 @@ The `sugarpy` python library is the core driver of the tool. It uses classical N
 
 To install the python library, use pip:
 ```bash
-pip install sugarpy
+pip install sugar-python
 ```
 
 You can also clone this repo and install from source using poetry:
