@@ -58,11 +58,12 @@ def consolidate_metrics(metrics: List[SugarMetrics]):
     return total
 
 
-def get_metrics(input_samples: List[str], consolidate=True):
+def get_metrics(input_samples: List[str], consolidate=True, model=None):
     """
     Main metrics function.
     """
-    cm = MorphologyCounter(model_name=DEFAULT_MODEL)
+    model = model or DEFAULT_MODEL
+    cm = MorphologyCounter(model_name=model)
     cs = SentenceCounter(nlp=cm.nlp)
     computed_metrics = []
 
