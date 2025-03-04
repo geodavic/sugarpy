@@ -18,3 +18,5 @@ steps:
     - 'us-central1'
 images:
 - 'us-central1-docker.pkg.dev/slpmetrics/cloud-run-source-deploy/sugarpy/sugarpy-web:$COMMIT_SHA'
+options:
+  defaultLogsBucketBehavior: REGIONAL_USER_OWNED_BUCKET
