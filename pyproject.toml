@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "sugar-python"
-version = "0.4.1"
+version = "0.4.2"
 description = "SUGAR metrics in python"
 authors = ["George D. Torres"]
 license = "MIT"
