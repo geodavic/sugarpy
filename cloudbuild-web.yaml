@@ -1,7 +1,7 @@
 steps:
 # Build the image
 - name: 'gcr.io/cloud-builders/docker'
-  args: ['build', '-t', 'us-central1-docker.pkg.dev/slpmetrics/cloud-run-source-deploy/sugarpy/sugarpy-web:$COMMIT_SHA', '.']
+  args: ['build', '-t', 'us-central1-docker.pkg.dev/slpmetrics/cloud-run-source-deploy/sugarpy/sugarpy-web:$COMMIT_SHA', '-f', 'Dockerfile.web', '.']
 # Push the image to Artifact Registry
 - name: 'gcr.io/cloud-builders/docker'
   args: ['push', 'us-central1-docker.pkg.dev/slpmetrics/cloud-run-source-deploy/sugarpy/sugarpy-web:$COMMIT_SHA']
