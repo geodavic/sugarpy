@@ -6,11 +6,19 @@ COPY ./web/package*.json ./
 
 RUN npm install
 
+RUN npm install toml
+
 COPY ./web .
+
+COPY get_version.cjs .
+
+COPY pyproject.toml .
 
 ENV VITE_SUGARPY_BASE_URL=https://sugarpy-976929012397.us-central1.run.app
 
-RUN npm run build
+RUN export VITE_SUGARPY_VERSION=$(node get_version.cjs) && \
+    echo "VITE_SUGARPY_VERSION=$VITE_SUGARPY_VERSION" >> .env && \
+    npm run build
 
 FROM nginx:alpine
 

@@ -58,6 +58,7 @@ const Spinner = () => (
 );
 
 const apiUrl = import.meta.env.VITE_SUGARPY_BASE_URL || 'http://0.0.0.0:5000';
+const appVersion = import.meta.env.VITE_SUGARPY_VERSION || '';
 const normalRange = "Within normal range"
 const belowAverage = "Below average"
 const delayed = "Delayed"
@@ -334,7 +335,7 @@ const LanguageAnalyticsApp = ({
       <header className="w-full max-w-2xl mb-4">
         <div className="flex justify-between items-baseline">
           <h1 className="text-4xl font-bold text-white">Language Samples Calculator</h1>
-          <span className="text-sm text-white">v0.4</span>
+          <span className="text-sm text-white">v{appVersion}</span>
         </div>
         <div className="mt-2 flex justify-end space-x-4">
           <Link to="/about" className="text-sm text-blue-300 hover:underline">About & Contact</Link>
