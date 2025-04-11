@@ -2,7 +2,11 @@
 
 # <div align="center">sugarpy</div>
 
-A library, API and web app for using NLP to perform language sample analysis using the [SUGAR](https://www.sugarlanguage.org/) framework. This is primarily meant as a tool for Speech Language Pathologists (SLPs) to expedite the often time-consuming process of computing SUGAR metrics by hand. The main mode of use for SLPs is the web application [here](https://languagesamples.app/). Behind the web application is an API hosted in Google Cloud. Documentation for that API is [here](https://sugarpy-mrjuj62msa-uc.a.run.app/docs).
+A library, API and web app for using NLP to perform language sample analysis using the [SUGAR](https://www.sugarlanguage.org/) framework. This is primarily meant as a tool for Speech Language Pathologists (SLPs) to expedite the often time-consuming process of computing SUGAR metrics by hand. 
+
+<a href="https://languagesamples.app/" style="font-size: 50px;">Try it out</a>
+
+<a href="https://sugarpy-mrjuj62msa-uc.a.run.app/docs" style="font-size: 50px;">API Documentation</a>
 
 The `sugarpy` python library is the core driver of the tool. It uses classical NLP (`spacy`) to perform rule-based and token based analysis on the input language samples. In the future, LLM support will be added to augment the tool and improve accuracy.
 
