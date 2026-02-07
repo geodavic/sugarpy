@@ -318,7 +318,7 @@ const LanguageAnalyticsApp = ({
     if (!result) return '';
     const formattedScore = result.score === null ? 'N/A' : result.score.toFixed(2);
     if (metric === 'mlu') {
-      return `Total number of morphmes / total utterances = ${result.numerator} / ${result.denominator} = ${formattedScore}`;
+      return `Total number of morphemes / total utterances = ${result.numerator} / ${result.denominator} = ${formattedScore}`;
     }
     if (metric === 'wps') {
       return `Total number of words / total number of sentences = ${result.numerator} / ${result.denominator} = ${formattedScore}`;
