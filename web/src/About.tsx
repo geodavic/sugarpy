@@ -39,12 +39,12 @@ const AboutPage = () => {
           This tool was developed and built by by Dr. George D. Torres, a machine learning scientist, in collaboration with Dr. Kristen K. Torres, a professional Speech Language Pathologist.
           <br></br>
           <br></br>
-          For inquiries or more information, please email us at{' '}
+          For inquiries, more information, or to report an issue with the tool, please email the developer at{' '}
           <a
-            href="mailto:digitalmetricsfortheslp@gmail.com"
+            href="mailto:gdavtor@gmail.com"
             className="text-blue-500 hover:underline"
           >
-            digitalmetricsfortheslp@gmail.com
+            gdavtor@gmail.com
           </a>.
           <br></br>
           <br></br>
