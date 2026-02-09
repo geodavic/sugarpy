@@ -391,7 +391,7 @@ const LanguageAnalyticsApp = ({
           </div>
           <button
             onClick={handleButtonClick}
-            disabled={loading}
+            disabled={loading || utteranceCount === 0}
             className="flex items-center analytics-button white-bg justify-center relative min-w-[150px] py-2"
           >
             <span className={loading ? "opacity-0" : "opacity-100"}>
