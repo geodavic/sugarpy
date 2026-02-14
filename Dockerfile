@@ -1,8 +1,6 @@
-from python:3.11
+FROM python:3.11
 
-RUN apt-get update
-
-RUN python3 -m pip install poetry
+COPY --from=ghcr.io/astral-sh/uv:latest /uv /uvx /bin/
 
 RUN mkdir /app
 
@@ -10,17 +8,12 @@ COPY ./ /app
 
 WORKDIR /app
 
-# Install sugarpy
-RUN python3 -m poetry install 
-
-# Install API requirements
-RUN poetry run python3 -m pip install -r api_requirements.txt
-
-# download spacy model
-RUN poetry run python3 -m spacy download en_core_web_lg
+# Install sugarpy and API requirements
+RUN uv sync
+RUN uv pip install -r api_requirements.txt
 
 EXPOSE 5000
 
 ENV PORT=5000
 
-CMD ["poetry","run","python3","api/main.py"]
+CMD ["uv","run","python3","api/main.py"]
