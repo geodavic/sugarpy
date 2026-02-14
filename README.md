@@ -17,15 +17,9 @@ To install the python library, use pip:
 pip install sugar-python
 ```
 
-You can also clone this repo and install from source using poetry:
+You can also clone this repo and install from source using [`uv`](https://docs.astral.sh/uv/getting-started/installation/):
 ```bash
-pip install poetry
-poetry install
-```
-
-Next you will need to install the default model:
-```bash
-python -m spacy download en_core_web_lg
+uv sync
 ```
 
 ## Use
