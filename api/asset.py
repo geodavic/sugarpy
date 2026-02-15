@@ -1,4 +1,3 @@
-import numpy as np
 import plotly.graph_objects as go
 import base64
 import os
@@ -13,6 +12,7 @@ YELLOW = "#FFDE21"
 RED = "#ff2d5d"
 WHITE = "white"
 LIGHTGREY = "lightgrey"
+
 
 def get_asset_from_request(request: AssetRequest):
     if request.type == AssetType.BELL_CURVE:

@@ -1,5 +1,4 @@
-from sugarpy.metrics import SugarMetrics, consolidate_metrics
-from sugarpy.metrics import consolidate_metrics
+from sugarpy.metrics import SugarMetrics
 from model import AppMetricsOutput, AppMetricItem, Age, MetricsOutput
 import numpy as np
 from tabulate import tabulate
@@ -12,6 +11,17 @@ def convert_float_to_json(val):
     return val
 
 
+def wps_counter(m: SugarMetrics):
+    return "(n/a)" if m.sentences == 0 else f"({m.words_in_sentences})"
+
+
+def cps_counter(m: SugarMetrics):
+    def clause_str(m: SugarMetrics):
+        return f"({m.clauses})" if m.clauses > 1 else f"({m.clauses})"
+
+    return "(n/a)" if m.sentences == 0 else clause_str(m)
+
+
 def get_processed_string(itemized_sugar_metrics: List[SugarMetrics], metric: str):
     spacer = "&nbsp;&nbsp;"
     if metric == "mlu":
@@ -20,12 +30,12 @@ def get_processed_string(itemized_sugar_metrics: List[SugarMetrics], metric: str
             for m in itemized_sugar_metrics
         ]
     if metric == "wps":
-        counter = lambda m: "(n/a)" if m.sentences == 0 else f"({m.words_in_sentences})"
-        rows = [[counter(m), spacer, m.sample] for m in itemized_sugar_metrics]
+        rows = [[wps_counter(m), spacer, m.sample] for m in itemized_sugar_metrics]
     if metric == "cps":
-        clause_str = lambda m: f"({m.clauses})" if m.clauses > 1 else f"({m.clauses})"
-        counter = lambda m: "(n/a)" if m.sentences == 0 else clause_str(m)
-        rows = [[counter(m), spacer, m.sample] for m in itemized_sugar_metrics]
+        rows = [
+            [cps_counter(m), spacer, m.clause_split_sample]
+            for m in itemized_sugar_metrics
+        ]
 
     tabulate_kwargs = {"tablefmt": "unsafehtml", "colalign": ("right",)}
     return tabulate(rows, **tabulate_kwargs)
@@ -34,7 +44,7 @@ def get_processed_string(itemized_sugar_metrics: List[SugarMetrics], metric: str
 def convert_sugar_metrics_to_app_response(
     itemized_sugar_metrics: List[SugarMetrics], age: Age
 ):
-    sugar_metrics = consolidate_metrics(itemized_sugar_metrics)
+    sugar_metrics = sum(itemized_sugar_metrics)
     output = AppMetricsOutput(
         number_of_utterances=sugar_metrics.utterances,
         mlu=AppMetricItem(

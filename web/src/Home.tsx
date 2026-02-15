@@ -527,9 +527,7 @@ const LanguageAnalyticsApp = ({
                 aria-labelledby={`tab-${activeTab}`}
               >
                 <div className="flex flex-col items-start space-y-2">
-                  <hr className="w-full my-2 border-[#6A4952]" />
-                  <div dangerouslySetInnerHTML={{ __html: results[activeTab].processedText }} />
-                  <hr className="w-full my-2 border-[#6A4952]" />
+                  <div className="w-full" dangerouslySetInnerHTML={{ __html: results[activeTab].processedText }} />
                   <div className="font-bold">
                     {getFormattedString(activeTab)}
                   </div>

@@ -1,11 +1,9 @@
 import matplotlib.pyplot as plt
-import tempfile
 import os
 import math
 import numpy as np
 from sugarpy.norms import get_norms
 import base64
-from io import BytesIO
 
 
 def metric_to_formatted_score(metric, score):

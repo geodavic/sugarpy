@@ -8,7 +8,7 @@ A library, API and web app for using NLP to perform language sample analysis usi
 
 <a href="https://sugarpy-mrjuj62msa-uc.a.run.app/docs" style="font-size: 50px;">API Documentation</a>
 
-The `sugarpy` python library is the core driver of the tool. It uses classical NLP (`spacy`) to perform rule-based and token based analysis on the input language samples. In the future, LLM support will be added to augment the tool and improve accuracy.
+The `sugarpy` python library is the core driver of the tool. It uses classical NLP (`spacy`) to perform rule-based and token based analysis on the input language samples. 
 
 ## Install
 

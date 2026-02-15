@@ -1,17 +1,14 @@
-from fastapi import FastAPI, Request, Form
+from fastapi import FastAPI
 from fastapi.staticfiles import StaticFiles
-from fastapi.responses import HTMLResponse
 from fastapi.templating import Jinja2Templates
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.exceptions import HTTPException
 
-from sugarpy import get_metrics, MetricName
+from sugarpy import get_metrics
 from sugarpy.norms import get_norms
 
 from model import (
     AppMetricsInput,
     AppMetricsOutput,
-    AppMetricItem,
     Age,
     NormInput,
     NormOutput,
@@ -29,7 +26,6 @@ import uvicorn
 import sugarpy
 
 tags_metadata = [
-    {"name": "v1", "description": "Legacy endpoints from the v1 application"},
     {
         "name": "v2",
         "description": "v2 endpoints",
@@ -70,27 +66,6 @@ app.add_middleware(
 # TODO remove the frontend stuff eventually
 app.mount("/static", StaticFiles(directory="static", html=True), name="static")
 templates = Jinja2Templates(directory="static")
-
-
-@app.get("/", response_class=HTMLResponse, deprecated=True, tags=["v1"])
-async def root(request: Request):
-    return templates.TemplateResponse("index.html", {"request": request})
-
-
-@app.post("/morph", deprecated=True, tags=["v1"])
-async def morph(
-    input_str: str = Form(...), age_y: str = Form(...), age_m: str = Form(...)
-):
-    resp = html_mlu_response(input_str)
-    return HTMLResponse(content=resp, status_code=200)
-
-
-@app.post("/metrics", deprecated=True, tags=["v1"])
-async def metrics(
-    input_str: str = Form(...), age_y: str = Form(...), age_m: str = Form(...)
-):
-    resp = html_metrics_response(input_str, int(age_y), int(age_m))
-    return HTMLResponse(content=resp, status_code=200)
 
 
 @app.post("/v2/web-metrics", tags=["v2"])
