@@ -1,6 +1,6 @@
 [project]
 name = "sugar-python"
-version = "0.4.2"
+version = "0.4.3"
 description = "SUGAR metrics in python"
 authors = [{ name = "George D. Torres" }]
 requires-python = ">=3.9,<4"
