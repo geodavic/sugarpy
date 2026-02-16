@@ -11,10 +11,10 @@ try {
   
   const config = toml.parse(fileContent);
 
-  if (config.tool && config.tool.poetry && config.tool.poetry.version) {
-    console.log(`${config.tool.poetry.version}`);
+  if (config.project && config.project.version) {
+    console.log(`${config.project.version}`);
   } else {
-    console.error('Version not found in the [tool.poetry] section.');
+    console.error('Version not found in the [project] section.');
   }
 } catch (error) {
   console.error('Error reading or parsing pyproject.toml:', error);
