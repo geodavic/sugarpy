@@ -11,6 +11,7 @@ WORKDIR /app
 # Install sugarpy and API requirements
 RUN uv sync
 RUN uv pip install -r api_requirements.txt
+RUN uv run kaleido_get_chrome
 
 EXPOSE 5000
 
